@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品管理 - 所有商品 | 供应商工作台</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f4f7fc;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 30px 24px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: #fff;
+            border-radius: 20px;
+            border: 1px solid #e9edf2;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.03);
+            padding: 24px 28px;
+            margin-bottom: 24px;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .page-header h2 {
+            font-size: 26px;
+            color: #1e2a3e;
+        }
+        .page-header h2 i {
+            color: #29a672;
+            margin-right: 10px;
+        }
+        .btn-publish-new {
+            background: #29a672;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+        .btn-publish-new:hover {
+            background: #1f8a5c;
+            transform: translateY(-1px);
+        }
+
+        /* 搜索筛选栏 */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .search-box {
+            display: flex;
+            flex: 2;
+            min-width: 260px;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #d0d7de;
+            border-radius: 40px 0 0 40px;
+            font-size: 14px;
+            outline: none;
+        }
+        .search-box button {
+            background: #29a672;
+            border: none;
+            padding: 0 20px;
+            border-radius: 0 40px 40px 0;
+            color: white;
+            cursor: pointer;
+        }
+        .filter-tabs {
+            display: flex;
+            gap: 12px;
+            background: #fff;
+            padding: 5px;
+            border-radius: 50px;
+            border: 1px solid #e2e8f0;
+        }
+        .filter-tab {
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+            background: transparent;
+        }
+        .filter-tab.active {
+            background: #29a672;
+            color: white;
+        }
+
+        /* 商品表格 */
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .products-table th {
+            text-align: left;
+            padding: 16px 12px;
+            background: #f8fafc;
+            font-weight: 600;
+            color: #334155;
+            border-bottom: 2px solid #e9edf2;
+        }
+        .products-table td {
+            padding: 20px 12px;
+            border-bottom: 1px solid #edf2f7;
+            vertical-align: middle;
+        }
+        .product-info-cell {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .product-thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+        }
+        .product-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .product-sku {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+        .spec-badge {
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 30px;
+            font-size: 11px;
+            display: inline-block;
+            margin: 2px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-on {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .status-off {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .action-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 6px 10px;
+            border-radius: 30px;
+            transition: 0.2s;
+        }
+        .action-btn.edit {
+            color: #2196f3;
+        }
+        .action-btn.edit:hover {
+            background: #e3f2fd;
+        }
+        .action-btn.view {
+            color: #29a672;
+        }
+        .action-btn.view:hover {
+            background: #e8f5e9;
+        }
+        .action-btn.toggle {
+            color: #e67e22;
+        }
+        .action-btn.delete {
+            color: #e74c3c;
+        }
+        .action-btn.delete:hover {
+            background: #ffebee;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 28px;
+        }
+        .page-item {
+            padding: 8px 14px;
+            border: 1px solid #dee2e6;
+            border-radius: 30px;
+            cursor: pointer;
+            background: white;
+        }
+        .page-item.active {
+            background: #29a672;
+            color: white;
+            border-color: #29a672;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #94a3b8;
+        }
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .products-table th, .products-table td {
+                padding: 12px 8px;
+            }
+            .product-info-cell {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .action-btns {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h2><i class="fas fa-boxes"></i> 所有商品</h2>
+        <button class="btn-publish-new" onclick="window.location.href='qyd-publish_product.html'">
+            <i class="fas fa-plus-circle"></i> 发布新商品
+        </button>
+    </div>
+
+    <div class="card">
+        <div class="filter-bar">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜索商品名称、SKU...">
+                <button id="searchBtn"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="filter-tabs" id="statusFilterTabs">
+                <span class="filter-tab active" data-status="all">全部</span>
+                <span class="filter-tab" data-status="on">已上架</span>
+                <span class="filter-tab" data-status="off">已下架</span>
+            </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="products-table" id="productsTable">
+                <thead>
+                    <tr><th>商品信息</th><th>规格数</th><th>售价区间</th><th>总库存</th><th>状态</th><th>操作</th></tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- 动态渲染商品列表 -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <i class="fas fa-store-slash"></i>
+            <p>暂无商品，点击“发布新商品”开始上架</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- 模拟商品数据（实际开发中从后端API获取）----------
+    let allProducts = [];
+
+    // 初始化 mock 数据 (包含多规格、主图等)
+    function initMockData() {
+        // 检查localStorage是否有数据，若无则生成示例
+        const stored = localStorage.getItem('vendor_products');
+        if (stored) {
+            allProducts = JSON.parse(stored);
+        } else {
+            // 示例商品列表（与发布页数据结构保持一致）
+            allProducts = [
+                {
+                    id: "prod_101",
+                    productName: "环保降解餐具套装",
+                    category: "家居生活",
+                    description: "天然麦秆纤维材质，可降解环保",
+                    brand: "EcoPub",
+                    unit: "套",
+                    shipping: "包邮",
+                    shipFrom: "浙江省杭州市",
+                    service: "7天无理由退换",
+                    productImages: ["https://picsum.photos/id/20/200/200", "https://picsum.photos/id/30/200/200"],
+                    specifications: [
+                        { name: "原木色", price: 89.90, stock: 156, sku: "WOOD-01", image: "https://picsum.photos/id/127/100/100" },
+                        { name: "麦秆绿", price: 92.00, stock: 88, sku: "GREEN-02", image: "https://picsum.photos/id/29/100/100" }
+                    ],
+                    status: "on",   // on:上架, off:下架
+                    publishTime: "2025-03-15T10:30:00Z"
+                },
+                {
+                    id: "prod_102",
+                    productName: "智能温控保温杯",
+                    category: "数码电子",
+                    description: "316不锈钢，智能数显，长效保温",
+                    brand: "ThermoX",
+                    unit: "个",
+                    shipping: "包邮",
+                    shipFrom: "广东省深圳市",
+                    service: "一年质保",
+                    productImages: ["https://picsum.photos/id/91/200/200"],
+                    specifications: [
+                        { name: "曜石黑", price: 129, stock: 234, sku: "CUP-BLK", image: "" },
+                        { name: "樱花粉", price: 129, stock: 120, sku: "CUP-PNK", image: "" }
+                    ],
+                    status: "on",
+                    publishTime: "2025-03-18T14:20:00Z"
+                },
+                {
+                    id: "prod_103",
+                    productName: "实验室pH检测笔",
+                    category: "仪器仪表",
+                    description: "高精度防水笔式pH计，自动校准",
+                    brand: "TestMaster",
+                    unit: "支",
+                    shipping: "按件收费",
+                    shipFrom: "上海市浦东新区",
+                    service: "非人为损坏换新",
+                    productImages: ["https://picsum.photos/id/96/200/200"],
+                    specifications: [
+                        { name: "标准款", price: 189, stock: 45, sku: "PH-01", image: "" },
+                        { name: "专业款", price: 279, stock: 22, sku: "PH-02", image: "" }
+                    ],
+                    status: "off",
+                    publishTime: "2025-03-10T09:15:00Z"
+                }
+            ];
+            saveToLocalStorage();
+        }
+        renderProductList();
+    }
+
+    function saveToLocalStorage() {
+        localStorage.setItem('vendor_products', JSON.stringify(allProducts));
+    }
+
+    // 辅助: 获取商品价格区间
+    function getPriceRange(specs) {
+        if (!specs || specs.length === 0) return "—";
+        const prices = specs.map(s => s.price);
+        const min = Math.min(...prices);
+        const max = Math.max(...prices);
+        if (min === max) return `¥${min.toFixed(2)}`;
+        return `¥${min.toFixed(2)} ~ ¥${max.toFixed(2)}`;
+    }
+
+    // 总库存
+    function getTotalStock(specs) {
+        if (!specs || specs.length === 0) return 0;
+        return specs.reduce((sum, s) => sum + (s.stock || 0), 0);
+    }
+
+    // 获取首张主图
+    function getMainImage(product) {
+        if (product.productImages && product.productImages.length > 0) {
+            return product.productImages[0];
+        }
+        if (product.specifications && product.specifications.length > 0 && product.specifications[0].image) {
+            return product.specifications[0].image;
+        }
+        return "https://picsum.photos/id/1/80/80";
+    }
+
+    // 渲染表格
+    let currentFilter = "all";   // all, on, off
+    let searchKeyword = "";
+    let currentPage = 1;
+    const pageSize = 8;
+
+    function getFilteredProducts() {
+        let filtered = [...allProducts];
+        if (currentFilter !== "all") {
+            filtered = filtered.filter(p => p.status === currentFilter);
+        }
+        if (searchKeyword.trim() !== "") {
+            const kw = searchKeyword.trim().toLowerCase();
+            filtered = filtered.filter(p => 
+                p.productName.toLowerCase().includes(kw) ||
+                (p.specifications && p.specifications.some(s => s.sku?.toLowerCase().includes(kw))) ||
+                p.id?.toLowerCase().includes(kw)
+            );
+        }
+        return filtered;
+    }
+
+    function renderProductList() {
+        const filtered = getFilteredProducts();
+        const totalPages = Math.ceil(filtered.length / pageSize);
+        const start = (currentPage - 1) * pageSize;
+        const paginated = filtered.slice(start, start + pageSize);
+        const tbody = document.getElementById('tableBody');
+        const emptyDiv = document.getElementById('emptyState');
+        const paginationDiv = document.getElementById('pagination');
+
+        if (paginated.length === 0) {
+            tbody.innerHTML = '';
+            emptyDiv.style.display = 'block';
+            paginationDiv.innerHTML = '';
+            return;
+        }
+        emptyDiv.style.display = 'none';
+        tbody.innerHTML = paginated.map(product => {
+            const priceRange = getPriceRange(product.specifications);
+            const totalStock = getTotalStock(product.specifications);
+            const specCount = product.specifications?.length || 0;
+            const statusClass = product.status === 'on' ? 'status-on' : 'status-off';
+            const statusText = product.status === 'on' ? '已上架' : '已下架';
+            const thumb = getMainImage(product);
+            return `
+                <tr data-product-id="${product.id}">
+                    <td>
+                        <div class="product-info-cell">
+                            <img class="product-thumb" src="${thumb}" alt="商品图" onerror="this.src='https://picsum.photos/id/20/60/60'">
+                            <div>
+                                <div class="product-name">${escapeHtml(product.productName)}</div>
+                                <div class="product-sku">ID: ${product.id}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${specCount}种</td>
+                    <td>${priceRange}</td>
+                    <td>${totalStock}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn view" title="预览" onclick="viewProduct('${product.id}')"><i class="fas fa-eye"></i></button>
+                            <button class="action-btn edit" title="编辑" onclick="editProduct('${product.id}')"><i class="fas fa-pen"></i></button>
+                            <button class="action-btn toggle" title="${product.status === 'on' ? '下架' : '上架'}" onclick="toggleStatus('${product.id}')"><i class="fas ${product.status === 'on' ? 'fa-eye-slash' : 'fa-eye'}"></i></button>
+                            <button class="action-btn delete" title="删除" onclick="deleteProduct('${product.id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        // 渲染分页
+        let paginationHtml = '';
+        for (let i = 1; i <= totalPages; i++) {
+            paginationHtml += `<span class="page-item ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</span>`;
+        }
+        paginationDiv.innerHTML = paginationHtml;
+        document.querySelectorAll('.page-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const page = parseInt(item.getAttribute('data-page'));
+                if (!isNaN(page)) {
+                    currentPage = page;
+                    renderProductList();
+                }
+            });
+        });
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // 商品操作：预览（弹窗或新窗口预览）
+    window.viewProduct = function(productId) {
+        const product = allProducts.find(p => p.id === productId);
+        if (product) {
+            // 存储到 sessionStorage 供预览页读取
+            sessionStorage.setItem('product_draft_preview', JSON.stringify(product));
+            window.open('qyd-publish_product_next.html', '_blank');
+        } else {
+            alert('商品不存在');
+        }
+    };
+
+    // 编辑商品：跳转到编辑页（可复用发布页并携带ID参数）
+    window.editProduct = function(productId) {
+        window.location.href = `qyd-publish_product.html?editId=${productId}`;
+    };
+
+    // 上下架切换
+    window.toggleStatus = function(productId) {
+        const product = allProducts.find(p => p.id === productId);
+        if (product) {
+            const newStatus = product.status === 'on' ? 'off' : 'on';
+            product.status = newStatus;
+            saveToLocalStorage();
+            renderProductList();
+            alert(`商品已${newStatus === 'on' ? '上架' : '下架'}`);
+        }
+    };
+
+    // 删除商品
+    window.deleteProduct = function(productId) {
+        if (confirm('确定要删除该商品吗？删除后不可恢复。')) {
+            allProducts = allProducts.filter(p => p.id !== productId);
+            saveToLocalStorage();
+            if (getFilteredProducts().length === 0 && currentPage > 1) {
+                currentPage = 1;
+            }
+            renderProductList();
+        }
+    };
+
+    // 监听搜索和筛选
+    document.getElementById('searchBtn').addEventListener('click', () => {
+        searchKeyword = document.getElementById('searchInput').value;
+        currentPage = 1;
+        renderProductList();
+    });
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            searchKeyword = e.target.value;
+            currentPage = 1;
+            renderProductList();
+        }
+    });
+
+    // 状态筛选 tabs
+    const tabs = document.querySelectorAll('.filter-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentFilter = tab.getAttribute('data-status');
+            currentPage = 1;
+            renderProductList();
+        });
+    });
+
+    // 模拟新增商品时从发布页保存 (在发布页提交时也要调用保存至 localStorage 的方法)
+    // 提供一个外部接口供发布页调用: 保存商品
+    window.saveProductFromPublish = function(productData) {
+        // 生成唯一ID
+        const newId = 'prod_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+        const newProduct = {
+            id: newId,
+            ...productData,
+            status: 'on',      // 默认上架
+            publishTime: new Date().toISOString()
+        };
+        allProducts.unshift(newProduct);
+        saveToLocalStorage();
+        renderProductList();
+        return newId;
+    };
+
+    // 更新商品 (编辑)
+    window.updateProductById = function(id, updatedData) {
+        const index = allProducts.findIndex(p => p.id === id);
+        if (index !== -1) {
+            allProducts[index] = { ...allProducts[index], ...updatedData, updateTime: new Date().toISOString() };
+            saveToLocalStorage();
+            renderProductList();
+        }
+    };
+
+    // 初始化 mock 数据，若localstorage为空则填充示例
+    initMockData();
+
+    // 监听其他页面通过 localStorage 新增商品（跨页面同步，简单演示）
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'vendor_products') {
+            allProducts = JSON.parse(e.newValue);
+            renderProductList();
+        }
+    });
+</script>
+<script>
+// 云函数 HTTP 触发地址（固定不变）
+const API_BASE = 'https://eco-project-d2grfzzu4ca135e6d-1423499375.ap-shanghai.app.tcloudbase.com';
+
+// 调用云函数
+async function callFunction(name, data) {
+    const response = await fetch(`${API_BASE}/${name}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data || {})
+    });
+    return response.json();
+}
+</script>
+</body>
+</html>

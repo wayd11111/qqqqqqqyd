@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>账号安全 - 绿采智联</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0f7b3a;
+            --primary-dark: #0a5c2c;
+            --primary-light: #e8f5e9;
+            --accent-blue: #2c7da0;
+            --accent-orange: #e67e22;
+            --accent-red: #e74c3c;
+            --accent-purple: #8b5cf6;
+            --bg-gray: #f8fafc;
+            --card-white: #ffffff;
+            --border-light: #eef2f6;
+            --text-main: #1e293b;
+            --text-muted: #5b6e8c;
+            --text-light: #94a3b8;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.06);
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+        }
+
+        body {
+            background: var(--bg-gray);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-main);
+            padding-bottom: 40px;
+        }
+
+        /* 头部 */
+        .security-header {
+            background: white;
+            padding: 16px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn {
+            background: none;
+            border: 1px solid var(--border-light);
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* 主容器 */
+        .security-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 24px 24px 40px;
+        }
+
+        /* 页面标题 */
+        .page-title-section {
+            margin-bottom: 28px;
+        }
+
+        .page-title-section h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-title-section h1 i {
+            color: var(--primary);
+        }
+
+        .page-title-section p {
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-size: 0.85rem;
+        }
+
+        /* 安全评分卡片 */
+        .security-score-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: var(--radius-lg);
+            padding: 24px 28px;
+            margin-bottom: 28px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .score-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .score-circle {
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+        }
+
+        .score-text h3 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .score-text p {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .improve-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 10px 24px;
+            border-radius: 40px;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .improve-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* 设置卡片 */
+        .settings-card {
+            background: var(--card-white);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-light);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header i {
+            font-size: 20px;
+            color: var(--primary);
+        }
+
+        .card-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border-light);
+            transition: background 0.2s;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-item:hover {
+            background: #fafcfb;
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .setting-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .setting-value {
+            font-size: 14px;
+            color: var(--text-main);
+            margin-right: 16px;
+        }
+
+        .setting-value.verified {
+            color: var(--primary);
+        }
+
+        .setting-value.unverified {
+            color: var(--accent-orange);
+        }
+
+        .setting-action {
+            background: none;
+            border: 1px solid var(--border-light);
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+        }
+
+        .setting-action:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .setting-action.danger:hover {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+            background: #ffebee;
+        }
+
+        /* 登录设备列表 */
+        .device-list {
+            padding: 8px 0;
+        }
+
+        .device-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .device-item:last-child {
+            border-bottom: none;
+        }
+
+        .device-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .device-icon {
+            width: 44px;
+            height: 44px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--text-muted);
+        }
+
+        .device-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .device-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .device-meta {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .device-badge {
+            font-size: 11px;
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        .device-action {
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .device-action:hover {
+            color: var(--accent-red);
+        }
+
+        /* 安全日志 */
+        .log-list {
+            padding: 8px 0;
+        }
+
+        .log-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .log-item:last-child {
+            border-bottom: none;
+        }
+
+        .log-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .log-icon {
+            width: 36px;
+            height: 36px;
+            background: #f1f5f9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .log-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .log-action {
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .log-time {
+            font-size: 11px;
+            color: var(--text-light);
+        }
+
+        .log-ip {
+            font-size: 11px;
+            color: var(--text-light);
+        }
+
+        /* 弹窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal {
+            background: white;
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 450px;
+            padding: 24px;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .modal-input-group {
+            margin-bottom: 20px;
+        }
+
+        .modal-input-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .modal-input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .modal-input-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15,123,58,0.1);
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .modal-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        @media (max-width: 768px) {
+            .security-container { padding: 16px; }
+            .security-score-card { flex-direction: column; text-align: center; }
+            .score-info { flex-direction: column; }
+            .setting-item { flex-direction: column; gap: 12px; align-items: flex-start; }
+            .setting-value { margin-right: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="security-header">
+    <div class="logo"><i class="fas fa-leaf"></i> 绿采智联</div>
+    <button class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i> 返回</button>
+</header>
+
+<div class="security-container">
+    <div class="page-title-section">
+        <h1>
+            <i class="fas fa-shield-alt"></i>
+            账号安全
+        </h1>
+        <p>保护您的账户安全，建议定期更新密码和绑定信息</p>
+    </div>
+
+    <!-- 安全评分 -->
+    <div class="security-score-card">
+        <div class="score-info">
+            <div class="score-circle" id="securityScore">85</div>
+            <div class="score-text">
+                <h3>安全评分 良好</h3>
+                <p>您的账户安全等级较高，继续保持</p>
+            </div>
+        </div>
+        <button class="improve-btn" onclick="showSecurityTip()">
+            <i class="fas fa-lightbulb"></i> 提升安全等级
+        </button>
+    </div>
+
+    <!-- 安全设置 -->
+    <div class="settings-card">
+        <div class="card-header">
+            <i class="fas fa-lock"></i>
+            <h3>安全设置</h3>
+        </div>
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-title">登录密码</div>
+                <div class="setting-desc">建议定期更换密码，使用字母+数字+符号组合</div>
+            </div>
+            <div class="setting-value">●●●●●●●●</div>
+            <button class="setting-action" onclick="openPasswordModal()">修改</button>
+        </div>
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-title">绑定手机号</div>
+                <div class="setting-desc">用于登录验证、找回密码、安全提醒</div>
+            </div>
+            <div class="setting-value verified" id="phoneDisplay">138****5678</div>
+            <button class="setting-action" onclick="openPhoneModal()">更换</button>
+        </div>
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-title">绑定邮箱</div>
+                <div class="setting-desc">用于接收安全通知、账单提醒</div>
+            </div>
+            <div class="setting-value" id="emailDisplay">eco****@example.com</div>
+            <button class="setting-action" onclick="openEmailModal()">绑定/修改</button>
+        </div>
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-title">支付密码</div>
+                <div class="setting-desc">用于提现、大额支付时的二次验证</div>
+            </div>
+            <div class="setting-value">●●●●●●</div>
+            <button class="setting-action" onclick="openPayPwdModal()">设置/修改</button>
+        </div>
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-title">登录保护</div>
+                <div class="setting-desc">开启后，新设备登录需短信验证</div>
+            </div>
+            <div class="setting-value">
+                <label class="toggle-switch" style="display: inline-flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="loginProtect" onchange="toggleLoginProtect(this.checked)" style="width: 40px; height: 20px; accent-color: var(--primary);">
+                    <span id="protectStatus" style="font-size: 12px; color: var(--primary);">已开启</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- 登录设备管理 -->
+    <div class="settings-card">
+        <div class="card-header">
+            <i class="fas fa-mobile-alt"></i>
+            <h3>登录设备管理</h3>
+        </div>
+        <div class="device-list" id="deviceList"></div>
+    </div>
+
+    <!-- 安全日志 -->
+    <div class="settings-card">
+        <div class="card-header">
+            <i class="fas fa-history"></i>
+            <h3>安全日志</h3>
+        </div>
+        <div class="log-list" id="logList"></div>
+    </div>
+</div>
+
+<!-- 弹窗模板 -->
+<div id="modalOverlay" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 id="modalTitle">修改密码</h3>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div id="modalContent"></div>
+    </div>
+</div>
+
+<script>
+    // ========== 模拟数据 ==========
+    let currentUser = {
+        phone: '138****5678',
+        email: 'eco****@example.com',
+        hasPayPwd: true
+    };
+    
+    let devices = [
+        { id: 1, name: 'Chrome 浏览器', os: 'Windows 11', ip: '上海市 浦东新区', time: '2026-04-22 14:30:25', current: true, icon: 'fa-chrome' },
+        { id: 2, name: 'Safari 浏览器', os: 'macOS 14', ip: '北京市 朝阳区', time: '2026-04-20 09:15:00', current: false, icon: 'fa-safari' },
+        { id: 3, name: '企业微信', os: 'iOS 17', ip: '广东省 深圳市', time: '2026-04-18 16:20:00', current: false, icon: 'fa-weixin' }
+    ];
+    
+    let securityLogs = [
+        { action: '登录成功', ip: '上海市 浦东新区', device: 'Chrome浏览器', time: '2026-04-22 14:30:25' },
+        { action: '修改密码', ip: '上海市 浦东新区', device: 'Chrome浏览器', time: '2026-04-20 10:15:00' },
+        { action: '新设备登录', ip: '北京市 朝阳区', device: 'Safari浏览器', time: '2026-04-20 09:15:00' },
+        { action: '登录成功', ip: '上海市 浦东新区', device: '企业微信', time: '2026-04-18 16:20:00' },
+        { action: '绑定邮箱', ip: '上海市 浦东新区', device: 'Chrome浏览器', time: '2026-04-15 11:00:00' }
+    ];
+    
+    // 渲染设备列表
+    function renderDevices() {
+        const container = document.getElementById('deviceList');
+        container.innerHTML = devices.map(device => `
+            <div class="device-item">
+                <div class="device-info">
+                    <div class="device-icon">
+                        <i class="fab ${device.icon}"></i>
+                    </div>
+                    <div class="device-details">
+                        <div class="device-name">
+                            ${device.name}
+                            ${device.current ? '<span class="device-badge" style="margin-left: 8px;">当前设备</span>' : ''}
+                        </div>
+                        <div class="device-meta">${device.os} · ${device.ip}</div>
+                        <div class="device-meta">最后登录：${device.time}</div>
+                    </div>
+                </div>
+                ${!device.current ? `<div class="device-action" onclick="removeDevice('${device.id}')">移除</div>` : ''}
+            </div>
+        `).join('');
+    }
+    
+    // 渲染安全日志
+    function renderLogs() {
+        const container = document.getElementById('logList');
+        container.innerHTML = securityLogs.slice(0, 5).map(log => {
+            let icon = 'fa-sign-in-alt';
+            if (log.action === '修改密码') icon = 'fa-key';
+            else if (log.action === '绑定邮箱') icon = 'fa-envelope';
+            else if (log.action === '新设备登录') icon = 'fa-mobile-alt';
+            
+            return `
+                <div class="log-item">
+                    <div class="log-info">
+                        <div class="log-icon">
+                            <i class="fas ${icon}"></i>
+                        </div>
+                        <div class="log-details">
+                            <div class="log-action">${log.action}</div>
+                            <div class="log-time">${log.time}</div>
+                        </div>
+                    </div>
+                    <div class="log-ip">${log.ip}</div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    // 计算安全评分
+    function updateSecurityScore() {
+        let score = 60;
+        if (currentUser.phone && currentUser.phone !== '未绑定') score += 10;
+        if (currentUser.email && currentUser.email !== '未绑定') score += 10;
+        if (currentUser.hasPayPwd) score += 10;
+        if (document.getElementById('loginProtect')?.checked) score += 10;
+        document.getElementById('securityScore').innerText = score;
+    }
+    
+    // 切换登录保护
+    function toggleLoginProtect(enabled) {
+        const statusSpan = document.getElementById('protectStatus');
+        if (enabled) {
+            statusSpan.innerText = '已开启';
+            statusSpan.style.color = 'var(--primary)';
+            showToast('登录保护已开启，新设备登录需短信验证');
+        } else {
+            statusSpan.innerText = '已关闭';
+            statusSpan.style.color = 'var(--text-muted)';
+            showToast('登录保护已关闭');
+        }
+        updateSecurityScore();
+    }
+    
+    // 移除设备
+    function removeDevice(deviceId) {
+        if (confirm('确定要移除该设备吗？移除后该设备需要重新登录验证')) {
+            devices = devices.filter(d => d.id != deviceId);
+            renderDevices();
+            showToast('设备已移除');
+        }
+    }
+    
+    // 弹窗相关
+    let currentModalCallback = null;
+    
+    function openPasswordModal() {
+        document.getElementById('modalTitle').innerText = '修改登录密码';
+        document.getElementById('modalContent').innerHTML = `
+            <div class="modal-input-group">
+                <label>当前密码</label>
+                <input type="password" id="oldPwd" placeholder="请输入当前密码">
+            </div>
+            <div class="modal-input-group">
+                <label>新密码</label>
+                <input type="password" id="newPwd" placeholder="8-20位字母+数字组合">
+            </div>
+            <div class="modal-input-group">
+                <label>确认新密码</label>
+                <input type="password" id="confirmPwd" placeholder="请再次输入新密码">
+            </div>
+            <button class="modal-btn" onclick="submitPasswordChange()">确认修改</button>
+        `;
+        document.getElementById('modalOverlay').style.display = 'flex';
+    }
+    
+    function submitPasswordChange() {
+        const oldPwd = document.getElementById('oldPwd')?.value;
+        const newPwd = document.getElementById('newPwd')?.value;
+        const confirmPwd = document.getElementById('confirmPwd')?.value;
+        
+        if (!oldPwd || !newPwd || !confirmPwd) {
+            showToast('请填写完整信息', true);
+            return;
+        }
+        if (newPwd !== confirmPwd) {
+            showToast('两次输入的新密码不一致', true);
+            return;
+        }
+        if (newPwd.length < 6) {
+            showToast('密码长度至少6位', true);
+            return;
+        }
+        
+        showToast('密码修改成功，请重新登录');
+        closeModal();
+        // 实际应调用API
+    }
+    
+    function openPhoneModal() {
+        document.getElementById('modalTitle').innerText = '更换绑定手机';
+        document.getElementById('modalContent').innerHTML = `
+            <div class="modal-input-group">
+                <label>新手机号</label>
+                <input type="tel" id="newPhone" placeholder="请输入新手机号">
+            </div>
+            <div class="modal-input-group">
+                <label>短信验证码</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="smsCode" placeholder="请输入验证码" style="flex:1;">
+                    <button type="button" onclick="sendSmsCode()" style="padding: 0 16px; background: var(--primary-light); border: none; border-radius: 30px; color: var(--primary); cursor: pointer;">获取验证码</button>
+                </div>
+            </div>
+            <button class="modal-btn" onclick="submitPhoneChange()">确认绑定</button>
+        `;
+        document.getElementById('modalOverlay').style.display = 'flex';
+    }
+    
+    function submitPhoneChange() {
+        const newPhone = document.getElementById('newPhone')?.value;
+        if (!newPhone || newPhone.length !== 11) {
+            showToast('请输入正确的手机号', true);
+            return;
+        }
+        currentUser.phone = newPhone.slice(0, 3) + '****' + newPhone.slice(-4);
+        document.getElementById('phoneDisplay').innerText = currentUser.phone;
+        showToast('手机号绑定成功');
+        closeModal();
+        updateSecurityScore();
+    }
+    
+    function openEmailModal() {
+        const isBound = currentUser.email !== '未绑定';
+        document.getElementById('modalTitle').innerText = isBound ? '修改绑定邮箱' : '绑定邮箱';
+        document.getElementById('modalContent').innerHTML = `
+            <div class="modal-input-group">
+                <label>邮箱地址</label>
+                <input type="email" id="newEmail" placeholder="请输入邮箱地址" value="${isBound ? currentUser.email : ''}">
+            </div>
+            <div class="modal-input-group">
+                <label>验证码</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="emailCode" placeholder="请输入验证码" style="flex:1;">
+                    <button type="button" onclick="sendEmailCode()" style="padding: 0 16px; background: var(--primary-light); border: none; border-radius: 30px; color: var(--primary); cursor: pointer;">获取验证码</button>
+                </div>
+            </div>
+            <button class="modal-btn" onclick="submitEmailChange()">${isBound ? '确认修改' : '确认绑定'}</button>
+        `;
+        document.getElementById('modalOverlay').style.display = 'flex';
+    }
+    
+    function submitEmailChange() {
+        const newEmail = document.getElementById('newEmail')?.value;
+        if (!newEmail || !newEmail.includes('@')) {
+            showToast('请输入正确的邮箱地址', true);
+            return;
+        }
+        const maskedEmail = newEmail.slice(0, 4) + '****' + newEmail.slice(newEmail.indexOf('@'));
+        currentUser.email = maskedEmail;
+        document.getElementById('emailDisplay').innerText = maskedEmail;
+        showToast('邮箱绑定成功');
+        closeModal();
+        updateSecurityScore();
+    }
+    
+    function openPayPwdModal() {
+        document.getElementById('modalTitle').innerText = currentUser.hasPayPwd ? '修改支付密码' : '设置支付密码';
+        document.getElementById('modalContent').innerHTML = `
+            ${currentUser.hasPayPwd ? `<div class="modal-input-group"><label>当前支付密码</label><input type="password" id="oldPayPwd" placeholder="请输入当前支付密码"></div>` : ''}
+            <div class="modal-input-group">
+                <label>新支付密码</label>
+                <input type="password" id="newPayPwd" placeholder="6位数字">
+            </div>
+            <div class="modal-input-group">
+                <label>确认支付密码</label>
+                <input type="password" id="confirmPayPwd" placeholder="请再次输入">
+            </div>
+            <button class="modal-btn" onclick="submitPayPwdChange()">${currentUser.hasPayPwd ? '确认修改' : '确认设置'}</button>
+        `;
+        document.getElementById('modalOverlay').style.display = 'flex';
+    }
+    
+    function submitPayPwdChange() {
+        const newPwd = document.getElementById('newPayPwd')?.value;
+        const confirmPwd = document.getElementById('confirmPayPwd')?.value;
+        if (!newPwd || newPwd.length !== 6 || !/^\d+$/.test(newPwd)) {
+            showToast('支付密码为6位数字', true);
+            return;
+        }
+        if (newPwd !== confirmPwd) {
+            showToast('两次输入不一致', true);
+            return;
+        }
+        currentUser.hasPayPwd = true;
+        showToast('支付密码设置成功');
+        closeModal();
+        updateSecurityScore();
+    }
+    
+    function sendSmsCode() {
+        showToast('验证码已发送至手机');
+    }
+    
+    function sendEmailCode() {
+        showToast('验证码已发送至邮箱');
+    }
+    
+    function showSecurityTip() {
+        showToast('建议：开启登录保护、定期更换密码、绑定手机和邮箱');
+    }
+    
+    function showToast(message, isError = false) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-message';
+        toast.style.cssText = 'position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#1e293b; color:white; padding:12px 24px; border-radius:60px; font-size:14px; z-index:1001; animation:fadeInUp 0.3s ease;';
+        if (isError) toast.style.background = '#e74c3c';
+        toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    function closeModal(event) {
+        if (!event || event.target === document.getElementById('modalOverlay') || event.target.classList?.contains('modal-close')) {
+            document.getElementById('modalOverlay').style.display = 'none';
+        }
+    }
+    
+    // 初始化
+    renderDevices();
+    renderLogs();
+    updateSecurityScore();
+    
+    // 暴露全局函数
+    window.openPasswordModal = openPasswordModal;
+    window.openPhoneModal = openPhoneModal;
+    window.openEmailModal = openEmailModal;
+    window.openPayPwdModal = openPayPwdModal;
+    window.submitPasswordChange = submitPasswordChange;
+    window.submitPhoneChange = submitPhoneChange;
+    window.submitEmailChange = submitEmailChange;
+    window.submitPayPwdChange = submitPayPwdChange;
+    window.sendSmsCode = sendSmsCode;
+    window.sendEmailCode = sendEmailCode;
+    window.showSecurityTip = showSecurityTip;
+    window.removeDevice = removeDevice;
+    window.toggleLoginProtect = toggleLoginProtect;
+    window.closeModal = closeModal;
+</script>
+</body>
+</html>

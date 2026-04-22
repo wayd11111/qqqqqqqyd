@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企业 AI 智能认证 - EcoGov</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script>
+// 云函数 HTTP 触发地址（固定不变）
+const API_BASE = 'https://eco-project-d2grfzzu4ca135e6d-1423499375.ap-shanghai.app.tcloudbase.com';
+
+// 调用云函数
+async function callFunction(name, data) {
+    const response = await fetch(`${API_BASE}/${name}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data || {})
+    });
+    return response.json();
+}
+</script>
+    <style>
+        :root {
+            --primary: #2a8c2a;
+            --ai-blue: #2a8c2a;
+            --bg: #f4f7f6;
+            --card-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "PingFang SC", system-ui; background: var(--bg); color: #334155; }
+
+        /* 顶部导航简易版 */
+        .nav-header { padding: 20px 40px; background: #fff; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 800; font-size: 20px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+
+        .container { max-width: 1000px; margin: 40px auto; display: grid; grid-template-columns: 1fr 320px; gap: 30px; }
+
+        /* 左侧主表单 */
+        .main-card { background: #fff; border-radius: 20px; padding: 40px; box-shadow: var(--card-shadow); position: relative; }
+        .section-title { font-size: 20px; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
+        .section-title i { color: var(--primary); }
+
+        /* 上传区域逻辑 */
+        .upload-section { 
+            background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 16px; 
+            padding: 40px; text-align: center; cursor: pointer; transition: 0.3s;
+            position: relative; overflow: hidden; margin-bottom: 30px;
+        }
+        .upload-section:hover { border-color: var(--primary); background: #f0f9f0; }
+        
+        /* AI 扫描动画层 */
+        .ai-scanner-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.6); 
+            display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10;
+        }
+        .scan-line {
+            width: 100%; height: 4px; background: linear-gradient(to bottom, transparent, var(--ai-blue));
+            position: absolute; top: 0; animation: scanning 2s infinite ease-in-out;
+            box-shadow: 0 0 15px var(--ai-blue);
+        }
+        @keyframes scanning { 0% { top: 0; } 50% { top: 100%; } 100% { top: 0; } }
+
+        /* 表单输入 */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #64748b; }
+        .input-group input { 
+            width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; 
+            outline: none; transition: 0.3s; font-size: 15px; background: #fff;
+        }
+        .ai-filled { border-color: var(--ai-blue) !important; background: #f0f7ff !important; animation: highlight 1.5s; }
+        @keyframes highlight { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+
+        /* 右侧状态栏 */
+        .side-info { display: flex; flex-direction: column; gap: 20px; }
+        .info-box { background: #fff; padding: 24px; border-radius: 20px; box-shadow: var(--card-shadow); }
+        .info-box h4 { margin-bottom: 12px; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+        .step-item { display: flex; gap: 12px; margin-bottom: 20px; position: relative; }
+        .step-num { width: 24px; height: 24px; background: #e2e8f0; border-radius: 50%; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .step-item.active .step-num { background: var(--primary); color: #fff; }
+        .step-text p { font-size: 13px; color: #64748b; }
+
+        /* AI 助手浮窗 */
+        .ai-assistant { background: linear-gradient(135deg, #3ea83e, #3976d8); color: #fff; padding: 20px; border-radius: 16px; }
+        .ai-assistant i { font-size: 24px; margin-bottom: 10px; }
+
+        .btn-submit {
+            width: 100%; padding: 16px; background: var(--primary); color: #fff; border: none;
+            border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 20px;
+        }
+        .btn-submit:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        .hidden { display: none !important; }
+        #preview-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #f8fafc; }
+    </style>
+</head>
+<body>
+
+<header class="nav-header">
+    <div class="logo"><i class="fas fa-seedling"></i> EcoCompany 绿色采购平台</div>
+    <div style="font-size: 14px; color: #64748b;">当前身份：企业管理员</div>
+</header>
+
+<div class="container">
+    <!-- 左侧表单 -->
+    <main class="main-card">
+        <h3 class="section-title"><i class="fas fa-shield-check"></i> 企业实名资质认证</h3>
+        
+        <div class="upload-section" onclick="document.getElementById('file-input').click()">
+            <div id="upload-placeholder">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 40px; color: var(--primary); margin-bottom: 15px;"></i>
+                <p style="font-weight: 600;">点击或拖拽上传营业执照</p>
+                <p style="font-size: 12px; color: #94a3b8; margin-top: 5px;">支持 JPG, PNG, PDF，文件需清晰无遮挡</p>
+            </div>
+            
+            <img id="preview-img" class="hidden">
+            
+            <!-- AI 扫描动画 -->
+            <div id="ai-overlay" class="ai-scanner-overlay">
+                <div class="scan-line"></div>
+                <i class="fas fa-robot" style="font-size: 30px; margin-bottom: 15px; color: var(--ai-blue);"></i>
+                <p>AI 正在提取工商数据...</p>
+            </div>
+        </div>
+
+        <input type="file" id="file-input" class="hidden" onchange="handleUpload(this)">
+
+        <div class="form-grid">
+            <div class="input-group">
+                <label>企业法定全称</label>
+                <input type="text" id="field-name" placeholder="自动识别填充">
+            </div>
+            <div class="input-group">
+                <label>统一社会信用代码</label>
+                <input type="text" id="field-code" placeholder="18位信用代码">
+            </div>
+            <div class="input-group">
+                <label>法定代表人</label>
+                <input type="text" id="field-person" placeholder="自动识别填充">
+            </div>
+            <div class="input-group">
+                <label>注册资本</label>
+                <input type="text" id="field-capital" placeholder="自动识别填充">
+            </div>
+        </div>
+
+        <div id="ai-notice" class="hidden" style="background: #f0f7ff; padding: 15px; border-radius: 10px; border: 1px solid #0062ff33; display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+            <i class="fas fa-info-circle" style="color: var(--ai-blue);"></i>
+            <span style="font-size: 13px; color: #004dc7;">AI 已完成初步预审，信息匹配度 99%。点击下方按钮提交人工复核。</span>
+        </div>
+
+        <button class="btn-submit" onclick="submitToHuman()">提交人工复核</button>
+    </main>
+
+    <!-- 右侧辅助 -->
+    <aside class="side-info">
+        <div class="ai-assistant">
+            <i class="fas fa-robot"></i>
+            <h4>AI 智能助手</h4>
+            <p style="font-size: 13px; opacity: 0.9; line-height: 1.5;">
+                我是您的认证助手。上传证照后，我会自动识别信息并校验其真实性，帮助您快速通过人工审核。
+            </p>
+        </div>
+
+        <div class="info-box">
+            <h4>认证流程</h4>
+            <div class="step-item active">
+                <div class="step-num">1</div>
+                <div class="step-text"><strong>AI 预审</strong><p>自动提取并校验基础信息</p></div>
+            </div>
+            <div class="step-item" id="step-human">
+                <div class="step-num">2</div>
+                <div class="step-text"><strong>人工复核</strong><p>运营人员核实原件真实性</p></div>
+            </div>
+            <div class="step-item">
+                <div class="step-num">3</div>
+                <div class="step-text"><strong>入驻成功</strong><p>获取绿色供应资质勋章</p></div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<script>
+    function handleUpload(input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                // 显示预览图
+                const img = document.getElementById('preview-img');
+                img.src = e.target.result;
+                img.classList.remove('hidden');
+                
+                // 开启 AI 扫描动画
+                const overlay = document.getElementById('ai-overlay');
+                overlay.style.display = 'flex';
+
+                // 模拟 AI 处理过程
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    fillAIContent();
+                }, 2500);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function fillAIContent() {
+        // 定义模拟数据
+        const data = {
+            name: "智绿环保科技（上海）有限公司",
+            code: "91310115MA1K3B9X2L",
+            person: "王生态",
+            capital: "5000万人民币"
+        };
+
+        // 填充并添加动画类
+        const fields = [
+            { id: 'field-name', val: data.name },
+            { id: 'field-code', val: data.code },
+            { id: 'field-person', val: data.person },
+            { id: 'field-capital', val: data.capital }
+        ];
+
+        fields.forEach((item, index) => {
+            setTimeout(() => {
+                const el = document.getElementById(item.id);
+                el.value = item.val;
+                el.classList.add('ai-filled');
+            }, index * 200);
+        });
+
+        document.getElementById('ai-notice').classList.remove('hidden');
+    }
+
+    function submitToHuman() {
+        const name = document.getElementById('field-name').value;
+        if(!name) return alert('请先上传营业执照进行 AI 预审');
+        
+        // 模拟提交人工成功
+        document.getElementById('step-human').classList.add('active');
+        alert('AI 预审通过！已转交人工复核，预计在 1 小时内反馈结果。');
+        window.location.href = "#"; // 实际可跳转回个人中心
+    }
+</script>
+
+</body>
+</html>

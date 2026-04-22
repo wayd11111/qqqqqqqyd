@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>政策速递 - 企业端</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0f7b3a;
+            --primary-dark: #0a5c2c;
+            --primary-light: #e8f5e9;
+            --accent-blue: #2c7da0;
+            --accent-orange: #e67e22;
+            --accent-red: #e74c3c;
+            --bg-gray: #f8fafc;
+            --card-white: #ffffff;
+            --border-light: #eef2f6;
+            --text-main: #1e293b;
+            --text-muted: #5b6e8c;
+            --text-light: #94a3b8;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.06);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+        }
+
+        body {
+            background: var(--bg-gray);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-main);
+            padding-bottom: 40px;
+        }
+
+        /* 头部导航 */
+        .policy-header {
+            background: white;
+            padding: 16px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn {
+            background: none;
+            border: 1px solid var(--border-light);
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* 主容器 */
+        .policy-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 24px 40px;
+        }
+
+        /* 页面标题区 */
+        .page-title-section {
+            margin-bottom: 28px;
+        }
+
+        .page-title-section h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-title-section h1 i {
+            color: var(--primary);
+            font-size: 28px;
+        }
+
+        .page-title-section p {
+            color: var(--text-muted);
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+
+        /* 筛选栏 */
+        .filter-bar {
+            background: var(--card-white);
+            border-radius: var(--radius-lg);
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            background: #f1f5f9;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .filter-chip.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .filter-chip:hover:not(.active) {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary-light);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: #f1f5f9;
+            padding: 6px 16px;
+            border-radius: 40px;
+        }
+
+        .search-box input {
+            border: none;
+            background: none;
+            padding: 8px 0;
+            width: 200px;
+            outline: none;
+            font-size: 0.85rem;
+        }
+
+        .search-box button {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        /* 政策列表网格 */
+        .policy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        /* 政策卡片 */
+        .policy-card {
+            background: var(--card-white);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            transition: all 0.25s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .policy-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
+        }
+
+        /* 政策标签 */
+        .policy-type {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .type-subsidy { background: #e8f5e9; color: #2e7d32; }
+        .type-cert { background: #e3f2fd; color: #1565c0; }
+        .type-standard { background: #fff3e0; color: #e65100; }
+        .type-notice { background: #fce4ec; color: #c62828; }
+
+        .policy-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.4;
+            margin-bottom: 10px;
+            
+            /* 两行省略 */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .policy-summary {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 16px;
+            
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .policy-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.7rem;
+            color: var(--text-light);
+            border-top: 1px solid var(--border-light);
+            padding-top: 12px;
+            margin-top: 4px;
+        }
+
+        .deadline {
+            color: var(--accent-red);
+            font-weight: 500;
+        }
+
+        .deadline.soon {
+            background: #fee2e2;
+            padding: 2px 8px;
+            border-radius: 20px;
+            color: #c62828;
+        }
+
+        .match-badge {
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .page-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 1px solid var(--border-light);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .page-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .page-btn:hover:not(.active) {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* 底部 */
+        .footer-note {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-light);
+            font-size: 0.75rem;
+            border-top: 1px solid var(--border-light);
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .policy-container { padding: 16px; }
+            .policy-grid { grid-template-columns: 1fr; }
+            .filter-bar { flex-direction: column; align-items: stretch; }
+            .search-box input { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="policy-header">
+    <div class="logo"><i class="fas fa-leaf"></i> 绿采智联</div>
+    <button class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i> 返回</button>
+</header>
+
+<div class="policy-container">
+    <div class="page-title-section">
+        <h1>
+            <i class="fas fa-newspaper"></i> 
+            政策速递
+        </h1>
+        <p>及时获取补贴申报、资质认证、行业标准等最新政策，把握商机先机</p>
+    </div>
+
+    <!-- 筛选栏 -->
+    <div class="filter-bar">
+        <div class="filter-tabs" id="filterTabs">
+            <span class="filter-chip active" data-type="all">全部政策</span>
+            <span class="filter-chip" data-type="subsidy">💰 补贴申报</span>
+            <span class="filter-chip" data-type="cert">📜 资质认证</span>
+            <span class="filter-chip" data-type="standard">📏 行业标准</span>
+            <span class="filter-chip" data-type="notice">📢 重要通知</span>
+        </div>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="搜索政策标题、关键词..." onkeyup="searchPolicy()">
+            <button onclick="searchPolicy()"><i class="fas fa-search"></i></button>
+        </div>
+    </div>
+
+    <!-- 政策列表网格 -->
+    <div class="policy-grid" id="policyGrid">
+        <!-- 卡片会由 JS 动态渲染 -->
+        <div class="empty-state" style="display: none;">
+            <i class="fas fa-inbox"></i>
+            <p>暂无相关政策</p>
+        </div>
+    </div>
+
+    <!-- 分页 -->
+    <div class="pagination" id="pagination"></div>
+
+    <div class="footer-note">
+        <i class="fas fa-sync-alt"></i> 政策数据每日更新 · 匹配度基于企业资质智能计算
+    </div>
+</div>
+
+<script>
+    // ========== 政策数据模拟（实际可对接后端API） ==========
+    const policiesData = [
+        {
+            id: 1,
+            title: "2026年度绿色工厂专项补贴申报",
+            summary: "对获评国家级绿色工厂的企业给予最高500万元奖励，申报截止2026年5月31日。",
+            type: "subsidy",
+            typeName: "补贴申报",
+            publishDate: "2026-03-20",
+            deadline: "2026-05-31",
+            match: 98,
+            department: "工信部",
+            link: "#"
+        },
+        {
+            id: 2,
+            title: "环保装备制造业高质量发展行动计划",
+            summary: "推动环保装备智能化、绿色化发展，符合条件企业可申请专项资金支持。",
+            type: "subsidy",
+            typeName: "补贴申报",
+            publishDate: "2026-03-15",
+            deadline: "2026-06-30",
+            match: 92,
+            department: "生态环境部",
+            link: "#"
+        },
+        {
+            id: 3,
+            title: "AAA级绿色供应链企业认证开放申请",
+            summary: "获得认证的企业在政府采购中享有优先权，并可获得银行绿色信贷优惠。",
+            type: "cert",
+            typeName: "资质认证",
+            publishDate: "2026-03-10",
+            deadline: "2026-08-31",
+            match: 85,
+            department: "中国绿色供应链联盟",
+            link: "#"
+        },
+        {
+            id: 4,
+            title: "企业ESG报告编制新标准（2026版）发布",
+            summary: "新标准要求披露范围三碳排放数据，上市公司需在2027年报中执行。",
+            type: "standard",
+            typeName: "行业标准",
+            publishDate: "2026-03-05",
+            deadline: null,
+            match: 96,
+            department: "证监会/交易所",
+            link: "#"
+        },
+        {
+            id: 5,
+            title: "关于进一步做好重点行业节能降碳工作的通知",
+            summary: "钢铁、水泥、化工等重点行业需在2026年底前完成能效诊断。",
+            type: "notice",
+            typeName: "重要通知",
+            publishDate: "2026-03-01",
+            deadline: "2026-12-31",
+            match: 88,
+            department: "国家发改委",
+            link: "#"
+        },
+        {
+            id: 6,
+            title: "绿色技术推广目录（2026年版）征集",
+            summary: "征集节能环保、清洁生产等领域先进技术，入选目录可获推广支持。",
+            type: "subsidy",
+            typeName: "补贴申报",
+            publishDate: "2026-02-25",
+            deadline: "2026-04-20",
+            match: 78,
+            department: "科技部",
+            link: "#"
+        },
+        {
+            id: 7,
+            title: "高新技术企业认定新规解读",
+            summary: "研发费用占比、知识产权数量等指标调整，企业需重新评估认定条件。",
+            type: "cert",
+            typeName: "资质认证",
+            publishDate: "2026-02-20",
+            deadline: null,
+            match: 82,
+            department: "科技部/财政部",
+            link: "#"
+        },
+        {
+            id: 8,
+            title: "碳排放权交易市场扩容通知",
+            summary: "水泥、电解铝行业纳入全国碳市场，2026年7月起履约。",
+            type: "notice",
+            typeName: "重要通知",
+            publishDate: "2026-02-18",
+            deadline: "2026-07-31",
+            match: 94,
+            department: "生态环境部",
+            link: "#"
+        },
+        {
+            id: 9,
+            title: "绿色建材产品认证实施细则更新",
+            summary: "新增低碳建材认证单元，已获证企业需在6个月内完成变更。",
+            type: "cert",
+            typeName: "资质认证",
+            publishDate: "2026-02-10",
+            deadline: "2026-08-10",
+            match: 76,
+            department: "住建部",
+            link: "#"
+        },
+        {
+            id: 10,
+            title: "工业领域碳达峰实施方案配套政策",
+            summary: "对实施节能改造的企业给予设备投资额15%的补助。",
+            type: "subsidy",
+            typeName: "补贴申报",
+            publishDate: "2026-02-05",
+            deadline: "2026-09-30",
+            match: 90,
+            department: "工信部",
+            link: "#"
+        }
+    ];
+
+    let currentType = "all";
+    let currentKeyword = "";
+    let currentPage = 1;
+    const pageSize = 6;
+
+    // 获取筛选后的数据
+    function getFilteredData() {
+        let filtered = [...policiesData];
+        
+        // 类型筛选
+        if (currentType !== "all") {
+            filtered = filtered.filter(p => p.type === currentType);
+        }
+        
+        // 关键词搜索
+        if (currentKeyword.trim()) {
+            const kw = currentKeyword.trim().toLowerCase();
+            filtered = filtered.filter(p => 
+                p.title.toLowerCase().includes(kw) || 
+                p.summary.toLowerCase().includes(kw) ||
+                p.department.toLowerCase().includes(kw)
+            );
+        }
+        
+        return filtered;
+    }
+
+    // 渲染卡片
+    function renderCards() {
+        const filtered = getFilteredData();
+        const totalPages = Math.ceil(filtered.length / pageSize);
+        const start = (currentPage - 1) * pageSize;
+        const pageData = filtered.slice(start, start + pageSize);
+        
+        const grid = document.getElementById("policyGrid");
+        const emptyDiv = document.querySelector(".empty-state");
+        
+        if (pageData.length === 0) {
+            if (emptyDiv) emptyDiv.style.display = "block";
+            grid.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无相关政策</p></div>';
+            document.getElementById("pagination").innerHTML = "";
+            return;
+        }
+        
+        if (emptyDiv) emptyDiv.style.display = "none";
+        
+        grid.innerHTML = pageData.map(policy => {
+            // 类型样式映射
+            let typeClass = "";
+            let typeLabel = "";
+            switch(policy.type) {
+                case "subsidy": typeClass = "type-subsidy"; typeLabel = "💰 补贴申报"; break;
+                case "cert": typeClass = "type-cert"; typeLabel = "📜 资质认证"; break;
+                case "standard": typeClass = "type-standard"; typeLabel = "📏 行业标准"; break;
+                case "notice": typeClass = "type-notice"; typeLabel = "📢 重要通知"; break;
+                default: typeClass = "type-subsidy"; typeLabel = "政策";
+            }
+            
+            // 截止日期显示
+            let deadlineHtml = "";
+            if (policy.deadline) {
+                const daysLeft = Math.ceil((new Date(policy.deadline) - new Date()) / (1000 * 60 * 60 * 24));
+                if (daysLeft > 0 && daysLeft <= 15) {
+                    deadlineHtml = `<span class="deadline soon">⏰ 剩余${daysLeft}天</span>`;
+                } else if (daysLeft > 0) {
+                    deadlineHtml = `<span class="deadline">截止：${policy.deadline}</span>`;
+                } else {
+                    deadlineHtml = `<span class="deadline" style="color:#94a3b8;">已截止</span>`;
+                }
+            } else {
+                deadlineHtml = `<span>长期有效</span>`;
+            }
+            
+            return `
+                <div class="policy-card" onclick="viewPolicyDetail(${policy.id})">
+                    <span class="policy-type ${typeClass}">${typeLabel}</span>
+                    <div class="policy-title">${escapeHtml(policy.title)}</div>
+                    <div class="policy-summary">${escapeHtml(policy.summary)}</div>
+                    <div class="policy-meta">
+                        <div class="policy-dept">
+                            <i class="fas fa-building"></i> ${policy.department}
+                        </div>
+                        <div class="match-badge">
+                            <i class="fas fa-chart-line"></i> 匹配度 ${policy.match}%
+                        </div>
+                    </div>
+                    <div class="policy-meta" style="border-top: none; padding-top: 0;">
+                        <span><i class="far fa-calendar-alt"></i> ${policy.publishDate}</span>
+                        ${deadlineHtml}
+                    </div>
+                </div>
+            `;
+        }).join("");
+        
+        renderPagination(totalPages);
+    }
+    
+    // 渲染分页
+    function renderPagination(totalPages) {
+        const paginationDiv = document.getElementById("pagination");
+        if (totalPages <= 1) {
+            paginationDiv.innerHTML = "";
+            return;
+        }
+        
+        let pagesHtml = "";
+        for (let i = 1; i <= totalPages; i++) {
+            pagesHtml += `<div class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</div>`;
+        }
+        paginationDiv.innerHTML = pagesHtml;
+    }
+    
+    // 跳转页面
+    function goToPage(page) {
+        currentPage = page;
+        renderCards();
+    }
+    
+    // 类型筛选
+    function filterByType(type) {
+        currentType = type;
+        currentPage = 1;
+        // 更新tab样式
+        document.querySelectorAll(".filter-chip").forEach(chip => {
+            chip.classList.remove("active");
+            if (chip.getAttribute("data-type") === type) {
+                chip.classList.add("active");
+            }
+        });
+        renderCards();
+    }
+    
+    // 搜索
+    function searchPolicy() {
+        currentKeyword = document.getElementById("searchInput").value;
+        currentPage = 1;
+        renderCards();
+    }
+    
+    // 查看详情（可跳转详情页或弹窗）
+    function viewPolicyDetail(id) {
+        const policy = policiesData.find(p => p.id === id);
+        if (policy) {
+            // 可跳转详情页，这里用alert模拟，实际可跳转 qyd-policy-detail.html?id=xxx
+            alert(`《${policy.title}》\n\n${policy.summary}\n\n发布部门：${policy.department}\n发布日期：${policy.publishDate}\n截止日期：${policy.deadline || "长期有效"}\n匹配度：${policy.match}%\n\n（详情页开发中，可对接后端）`);
+            // window.location.href = `qyd-policy-detail.html?id=${id}`;
+        }
+    }
+    
+    // 辅助：防XSS
+    function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === "&") return "&amp;";
+            if (m === "<") return "&lt;";
+            if (m === ">") return "&gt;";
+            return m;
+        });
+    }
+    
+    // 绑定筛选事件
+    document.querySelectorAll(".filter-chip").forEach(chip => {
+        chip.addEventListener("click", function() {
+            const type = this.getAttribute("data-type");
+            filterByType(type);
+        });
+    });
+    
+    // 初始化
+    renderCards();
+    
+    // 暴露全局函数供onclick调用
+    window.goToPage = goToPage;
+    window.filterByType = filterByType;
+    window.searchPolicy = searchPolicy;
+    window.viewPolicyDetail = viewPolicyDetail;
+</script>
+</body>
+</html>

@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>资金管理 - 绿采智联</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0f7b3a;
+            --primary-dark: #0a5c2c;
+            --primary-light: #e8f5e9;
+            --accent-blue: #2c7da0;
+            --accent-orange: #e67e22;
+            --accent-red: #e74c3c;
+            --accent-purple: #8b5cf6;
+            --bg-gray: #f8fafc;
+            --card-white: #ffffff;
+            --border-light: #eef2f6;
+            --text-main: #1e293b;
+            --text-muted: #5b6e8c;
+            --text-light: #94a3b8;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.06);
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+        }
+
+        body {
+            background: var(--bg-gray);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-main);
+            padding-bottom: 40px;
+        }
+
+        /* 头部 */
+        .finance-header {
+            background: white;
+            padding: 16px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn {
+            background: none;
+            border: 1px solid var(--border-light);
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* 主容器 */
+        .finance-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 24px 40px;
+        }
+
+        /* 余额卡片 */
+        .balance-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            margin-bottom: 28px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: rgba(15,123,58,0.1);
+            border-radius: 50%;
+        }
+
+        .balance-card::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 150px;
+            height: 150px;
+            background: rgba(44,125,160,0.1);
+            border-radius: 50%;
+        }
+
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.7;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .balance-amount {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            font-family: 'Inter', monospace;
+        }
+
+        .balance-amount small {
+            font-size: 18px;
+            font-weight: 400;
+        }
+
+        .balance-stats {
+            display: flex;
+            gap: 32px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.6;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .stat-value.income { color: #4ade80; }
+        .stat-value.expense { color: #f87171; }
+
+        /* 双卡片布局 */
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        /* 充值/提现卡片 */
+        .action-card {
+            background: var(--card-white);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+        }
+
+        .action-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        .card-title i {
+            font-size: 22px;
+        }
+
+        .card-title.recharge i { color: var(--primary); }
+        .card-title.withdraw i { color: var(--accent-orange); }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            background: #f8fafc;
+            transition: all 0.2s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15,123,58,0.1);
+            background: white;
+        }
+
+        .currency {
+            padding: 14px 0 14px 16px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .input-wrapper input {
+            flex: 1;
+            padding: 14px 12px;
+            border: none;
+            background: none;
+            outline: none;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .input-wrapper input::placeholder {
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        /* 支付方式/提现方式 */
+        .method-section {
+            margin-bottom: 20px;
+        }
+
+        .method-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .method-options {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .method-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 1px solid var(--border-light);
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .method-item:hover {
+            border-color: var(--primary);
+        }
+
+        .method-item.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .method-item i {
+            font-size: 18px;
+        }
+
+        .method-item i.fa-weixin { color: #07c160; }
+        .method-item i.fa-alipay { color: #1677ff; }
+        .method-item i.fa-building { color: var(--accent-blue); }
+        .method-item i.fa-university { color: var(--accent-purple); }
+
+        .method-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* 银行卡/账户信息 */
+        .account-info {
+            background: #f8fafc;
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .account-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .account-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .account-label {
+            color: var(--text-muted);
+        }
+
+        .account-value {
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-recharge {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-recharge:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-withdraw {
+            background: var(--accent-orange);
+            color: white;
+        }
+
+        .btn-withdraw:hover {
+            background: #d35400;
+            transform: translateY(-1px);
+        }
+
+        /* 交易记录 */
+        .records-card {
+            background: var(--card-white);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            border: 1px solid var(--border-light);
+        }
+
+        .records-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        .records-title {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .more-link {
+            font-size: 13px;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .record-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .record-item:last-child {
+            border-bottom: none;
+        }
+
+        .record-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .record-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .record-icon.recharge {
+            background: #e8f5e9;
+            color: var(--primary);
+        }
+
+        .record-icon.withdraw {
+            background: #fff3e0;
+            color: var(--accent-orange);
+        }
+
+        .record-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .record-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .record-time {
+            font-size: 11px;
+            color: var(--text-light);
+        }
+
+        .record-amount {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .record-amount.recharge {
+            color: var(--primary);
+        }
+
+        .record-amount.withdraw {
+            color: var(--accent-orange);
+        }
+
+        .record-status {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .status-success {
+            background: #e8f5e9;
+            color: var(--primary);
+        }
+
+        .status-pending {
+            background: #fff3e0;
+            color: var(--accent-orange);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+
+        @media (max-width: 768px) {
+            .finance-container { padding: 16px; }
+            .action-grid { grid-template-columns: 1fr; gap: 16px; }
+            .balance-card { padding: 20px; }
+            .balance-amount { font-size: 36px; }
+            .method-options { gap: 10px; }
+            .method-item { padding: 8px 16px; }
+        }
+
+        /* 提示弹窗 */
+        .toast-message {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 60px;
+            font-size: 14px;
+            z-index: 1000;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="finance-header">
+    <div class="logo"><i class="fas fa-leaf"></i> 绿采智联</div>
+    <button class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i> 返回</button>
+</header>
+
+<div class="finance-container">
+    <!-- 余额卡片 -->
+    <div class="balance-card">
+        <div class="balance-label">企业账户余额（元）</div>
+        <div class="balance-amount" id="balanceAmount">128,500.00<small></small></div>
+        <div class="balance-stats">
+            <div class="stat-item">
+                <span class="stat-label">累计充值</span>
+                <span class="stat-value income" id="totalRecharge">156,800.00</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">累计提现</span>
+                <span class="stat-value expense" id="totalWithdraw">28,300.00</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">冻结金额</span>
+                <span class="stat-value" id="frozenAmount">0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 充值 + 提现 双卡片 -->
+    <div class="action-grid">
+        <!-- 充值卡片 -->
+        <div class="action-card">
+            <div class="card-title recharge">
+                <i class="fas fa-plus-circle"></i>
+                账户充值
+            </div>
+            <div class="input-group">
+                <div class="input-label">充值金额</div>
+                <div class="input-wrapper">
+                    <span class="currency">¥</span>
+                    <input type="number" id="rechargeAmount" placeholder="请输入充值金额" step="0.01" min="0.01">
+                </div>
+            </div>
+            <div class="method-section">
+                <div class="method-title">支付方式</div>
+                <div class="method-options" id="rechargeMethods">
+                    <div class="method-item selected" data-method="wechat">
+                        <i class="fab fa-weixin"></i>
+                        <span class="method-name">微信支付</span>
+                    </div>
+                    <div class="method-item" data-method="alipay">
+                        <i class="fab fa-alipay"></i>
+                        <span class="method-name">支付宝</span>
+                    </div>
+                    <div class="method-item" data-method="bank">
+                        <i class="fas fa-building"></i>
+                        <span class="method-name">对公转账</span>
+                    </div>
+                </div>
+            </div>
+            <button class="action-btn btn-recharge" onclick="submitRecharge()">
+                <i class="fas fa-arrow-right"></i> 立即充值
+            </button>
+        </div>
+
+        <!-- 提现卡片 -->
+        <div class="action-card">
+            <div class="card-title withdraw">
+                <i class="fas fa-money-bill-wave"></i>
+                申请提现
+            </div>
+            <div class="input-group">
+                <div class="input-label">提现金额</div>
+                <div class="input-wrapper">
+                    <span class="currency">¥</span>
+                    <input type="number" id="withdrawAmount" placeholder="请输入提现金额" step="0.01" min="0.01">
+                </div>
+            </div>
+            <div class="method-section">
+                <div class="method-title">提现方式</div>
+                <div class="method-options" id="withdrawMethods">
+                    <div class="method-item selected" data-method="bankcard">
+                        <i class="fas fa-credit-card"></i>
+                        <span class="method-name">对公银行卡</span>
+                    </div>
+                    <div class="method-item" data-method="alipay">
+                        <i class="fab fa-alipay"></i>
+                        <span class="method-name">企业支付宝</span>
+                    </div>
+                </div>
+            </div>
+            <div class="account-info" id="accountInfo">
+                <div class="account-row">
+                    <span class="account-label">开户名</span>
+                    <span class="account-value">示例绿色能源科技有限公司</span>
+                </div>
+                <div class="account-row">
+                    <span class="account-label">银行账号</span>
+                    <span class="account-value">**** **** **** 1234</span>
+                </div>
+                <div class="account-row">
+                    <span class="account-label">开户行</span>
+                    <span class="account-value">中国银行 上海张江支行</span>
+                </div>
+            </div>
+            <button class="action-btn btn-withdraw" onclick="submitWithdraw()">
+                <i class="fas fa-check-circle"></i> 申请提现
+            </button>
+        </div>
+    </div>
+
+    <!-- 交易记录 -->
+    <div class="records-card">
+        <div class="records-header">
+            <div class="records-title">
+                <i class="fas fa-history"></i>
+                最近交易记录
+            </div>
+            <a href="#" class="more-link" onclick="viewAllRecords()">查看全部 <i class="fas fa-chevron-right"></i></a>
+        </div>
+        <div class="record-list" id="recordList"></div>
+    </div>
+</div>
+
+<script>
+    // ========== 模拟数据 ==========
+    let balance = 128500.00;
+    let totalRecharge = 156800.00;
+    let totalWithdraw = 28300.00;
+    
+    // 交易记录
+    let transactions = [
+        { id: 1, type: 'recharge', title: '微信充值', amount: 5000.00, time: '2026-04-22 14:30:25', status: 'success' },
+        { id: 2, type: 'withdraw', title: '提现至对公账户', amount: 3000.00, time: '2026-04-21 09:15:00', status: 'success' },
+        { id: 3, type: 'recharge', title: '支付宝充值', amount: 10000.00, time: '2026-04-20 16:20:00', status: 'success' },
+        { id: 4, type: 'withdraw', title: '提现至企业支付宝', amount: 2000.00, time: '2026-04-19 11:00:00', status: 'pending' },
+        { id: 5, type: 'recharge', title: '对公转账', amount: 20000.00, time: '2026-04-18 10:30:00', status: 'success' },
+        { id: 6, type: 'recharge', title: '微信充值', amount: 3000.00, time: '2026-04-17 15:45:00', status: 'success' }
+    ];
+    
+    let selectedRechargeMethod = 'wechat';
+    let selectedWithdrawMethod = 'bankcard';
+    
+    // 更新余额显示
+    function updateBalanceDisplay() {
+        document.getElementById('balanceAmount').innerHTML = balance.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        document.getElementById('totalRecharge').innerHTML = totalRecharge.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        document.getElementById('totalWithdraw').innerHTML = totalWithdraw.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    
+    // 渲染交易记录
+    function renderTransactions() {
+        const container = document.getElementById('recordList');
+        const recentTransactions = transactions.slice(0, 5);
+        
+        if (recentTransactions.length === 0) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-receipt"></i><p>暂无交易记录</p></div>';
+            return;
+        }
+        
+        container.innerHTML = recentTransactions.map(t => {
+            const isRecharge = t.type === 'recharge';
+            const iconClass = isRecharge ? 'recharge' : 'withdraw';
+            const icon = isRecharge ? '<i class="fas fa-arrow-down"></i>' : '<i class="fas fa-arrow-up"></i>';
+            const amountClass = isRecharge ? 'recharge' : 'withdraw';
+            const amountPrefix = isRecharge ? '+' : '-';
+            const statusClass = t.status === 'success' ? 'status-success' : 'status-pending';
+            const statusText = t.status === 'success' ? '成功' : '处理中';
+            
+            return `
+                <div class="record-item">
+                    <div class="record-info">
+                        <div class="record-icon ${iconClass}">
+                            ${icon}
+                        </div>
+                        <div class="record-details">
+                            <div class="record-title">${t.title}</div>
+                            <div class="record-time">${t.time}</div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="record-amount ${amountClass}">${amountPrefix} ¥${t.amount.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}</div>
+                        <span class="record-status ${statusClass}">${statusText}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    // 充值方法选择
+    document.querySelectorAll('#rechargeMethods .method-item').forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('#rechargeMethods .method-item').forEach(i => i.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedRechargeMethod = this.getAttribute('data-method');
+        });
+    });
+    
+    // 提现方法选择
+    document.querySelectorAll('#withdrawMethods .method-item').forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('#withdrawMethods .method-item').forEach(i => i.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedWithdrawMethod = this.getAttribute('data-method');
+            
+            // 更新账户信息显示
+            const accountInfo = document.getElementById('accountInfo');
+            if (selectedWithdrawMethod === 'bankcard') {
+                accountInfo.innerHTML = `
+                    <div class="account-row">
+                        <span class="account-label">开户名</span>
+                        <span class="account-value">示例绿色能源科技有限公司</span>
+                    </div>
+                    <div class="account-row">
+                        <span class="account-label">银行账号</span>
+                        <span class="account-value">**** **** **** 1234</span>
+                    </div>
+                    <div class="account-row">
+                        <span class="account-label">开户行</span>
+                        <span class="account-value">中国银行 上海张江支行</span>
+                    </div>
+                `;
+            } else {
+                accountInfo.innerHTML = `
+                    <div class="account-row">
+                        <span class="account-label">支付宝账户</span>
+                        <span class="account-value">eco@example.com</span>
+                    </div>
+                    <div class="account-row">
+                        <span class="account-label">账户名</span>
+                        <span class="account-value">示例绿色能源科技有限公司</span>
+                    </div>
+                `;
+            }
+        });
+    });
+    
+    // 显示提示消息
+    function showToast(message, isError = false) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-message';
+        toast.style.background = isError ? '#e74c3c' : '#1e293b';
+        toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+    
+    // 提交充值
+    function submitRecharge() {
+        const amountInput = document.getElementById('rechargeAmount');
+        const amount = parseFloat(amountInput.value);
+        
+        if (isNaN(amount) || amount <= 0) {
+            showToast('请输入有效的充值金额', true);
+            return;
+        }
+        
+        if (amount < 0.01) {
+            showToast('充值金额不能小于0.01元', true);
+            return;
+        }
+        
+        // 模拟充值
+        balance += amount;
+        totalRecharge += amount;
+        
+        // 添加交易记录
+        const methodNames = { wechat: '微信支付', alipay: '支付宝', bank: '对公转账' };
+        const newTransaction = {
+            id: transactions.length + 1,
+            type: 'recharge',
+            title: `${methodNames[selectedRechargeMethod] || '充值'}充值`,
+            amount: amount,
+            time: new Date().toLocaleString('zh-CN'),
+            status: 'success'
+        };
+        transactions.unshift(newTransaction);
+        
+        updateBalanceDisplay();
+        renderTransactions();
+        
+        showToast(`充值成功！¥${amount.toLocaleString('zh-CN', { minimumFractionDigits: 2 })} 已到账`);
+        amountInput.value = '';
+    }
+    
+    // 提交提现
+    function submitWithdraw() {
+        const amountInput = document.getElementById('withdrawAmount');
+        const amount = parseFloat(amountInput.value);
+        
+        if (isNaN(amount) || amount <= 0) {
+            showToast('请输入有效的提现金额', true);
+            return;
+        }
+        
+        if (amount < 100) {
+            showToast('提现金额不能小于100元', true);
+            return;
+        }
+        
+        if (amount > balance) {
+            showToast('余额不足，请减少提现金额', true);
+            return;
+        }
+        
+        // 模拟提现
+        balance -= amount;
+        totalWithdraw += amount;
+        
+        // 添加交易记录
+        const methodNames = { bankcard: '对公银行卡', alipay: '企业支付宝' };
+        const newTransaction = {
+            id: transactions.length + 1,
+            type: 'withdraw',
+            title: `提现至${methodNames[selectedWithdrawMethod] || '银行卡'}`,
+            amount: amount,
+            time: new Date().toLocaleString('zh-CN'),
+            status: 'pending'
+        };
+        transactions.unshift(newTransaction);
+        
+        updateBalanceDisplay();
+        renderTransactions();
+        
+        showToast(`提现申请已提交！¥${amount.toLocaleString('zh-CN', { minimumFractionDigits: 2 })} 预计1-3个工作日到账`);
+        amountInput.value = '';
+    }
+    
+    // 查看全部记录
+    function viewAllRecords() {
+        alert('查看全部交易记录（跳转至明细页）');
+        // window.location.href = 'qyd-transaction-history.html';
+    }
+    
+    // 初始化
+    updateBalanceDisplay();
+    renderTransactions();
+    
+    // 暴露全局函数
+    window.submitRecharge = submitRecharge;
+    window.submitWithdraw = submitWithdraw;
+    window.viewAllRecords = viewAllRecords;
+</script>
+</body>
+</html>

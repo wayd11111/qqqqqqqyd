@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>我的订单 - 绿采智联</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0f7b3a;
+            --primary-dark: #0a5c2c;
+            --primary-light: #e8f5e9;
+            --accent-blue: #2c7da0;
+            --accent-orange: #e67e22;
+            --accent-red: #e74c3c;
+            --accent-purple: #8b5cf6;
+            --bg-gray: #f8fafc;
+            --card-white: #ffffff;
+            --border-light: #eef2f6;
+            --text-main: #1e293b;
+            --text-muted: #5b6e8c;
+            --text-light: #94a3b8;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.06);
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+        }
+
+        body {
+            background: var(--bg-gray);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-main);
+            padding-bottom: 40px;
+        }
+
+        /* 头部 */
+        .order-header {
+            background: white;
+            padding: 16px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn {
+            background: none;
+            border: 1px solid var(--border-light);
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* 主容器 */
+        .order-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 24px 40px;
+        }
+
+        /* 页面标题 */
+        .page-title-section {
+            margin-bottom: 24px;
+        }
+
+        .page-title-section h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-title-section h1 i {
+            color: var(--primary);
+        }
+
+        /* 状态选项卡 */
+        .status-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            background: white;
+            padding: 8px;
+            border-radius: 60px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 10px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .tab-btn i {
+            font-size: 14px;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tab-btn .count {
+            background: rgba(0,0,0,0.1);
+            padding: 0 6px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-left: 4px;
+        }
+
+        .tab-btn.active .count {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* 订单列表 */
+        .order-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* 订单卡片 */
+        .order-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .order-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        /* 订单头部 */
+        .order-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            background: #fafcfb;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .store-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .store-info i {
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .store-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-main);
+        }
+
+        .order-status {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .order-status.pending_payment { color: #e74c3c; }
+        .order-status.pending_delivery { color: #e67e22; }
+        .order-status.pending_receipt { color: #2c7da0; }
+        .order-status.completed { color: var(--primary); }
+        .order-status.pending_after_sale { color: #8b5cf6; }
+        .order-status.cancelled { color: #94a3b8; }
+
+        /* 商品列表 */
+        .order-products {
+            padding: 16px 20px;
+        }
+
+        .product-item {
+            display: flex;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f8fafc;
+        }
+
+        .product-item:last-child {
+            border-bottom: none;
+        }
+
+        .product-img {
+            width: 70px;
+            height: 70px;
+            background: #f1f5f9;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-main);
+            margin-bottom: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-spec {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 6px;
+        }
+
+        .product-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-weight: 700;
+            color: var(--accent-orange);
+            font-size: 15px;
+        }
+
+        .quantity {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* 订单底部 */
+        .order-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: #fafcfb;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .total-info {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .total-amount {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--accent-orange);
+            margin-left: 4px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: white;
+            border: 1px solid #ffcdd2;
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #ffebee;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-light);
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: var(--text-light);
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            color: var(--text-muted);
+        }
+
+        /* 加载动画 */
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .order-container { padding: 16px; }
+            .status-tabs { border-radius: 20px; overflow-x: auto; flex-wrap: nowrap; }
+            .tab-btn { white-space: nowrap; }
+            .action-buttons { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="order-header">
+    <div class="logo"><i class="fas fa-leaf"></i> 绿采智联</div>
+    <button class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i> 返回</button>
+</header>
+
+<div class="order-container">
+    <div class="page-title-section">
+        <h1>
+            <i class="fas fa-shopping-bag"></i>
+            我的订单
+        </h1>
+    </div>
+
+    <!-- 状态选项卡 -->
+    <div class="status-tabs" id="statusTabs">
+        <button class="tab-btn active" data-status="all">
+            <i class="fas fa-list"></i> 全部
+            <span class="count" id="countAll">0</span>
+        </button>
+        <button class="tab-btn" data-status="pending_payment">
+            <i class="fas fa-clock"></i> 待付款
+            <span class="count" id="countPendingPayment">0</span>
+        </button>
+        <button class="tab-btn" data-status="pending_delivery">
+            <i class="fas fa-box"></i> 待发货
+            <span class="count" id="countPendingDelivery">0</span>
+        </button>
+        <button class="tab-btn" data-status="pending_receipt">
+            <i class="fas fa-truck"></i> 待收货
+            <span class="count" id="countPendingReceipt">0</span>
+        </button>
+        <button class="tab-btn" data-status="completed">
+            <i class="fas fa-check-circle"></i> 已完成
+            <span class="count" id="countCompleted">0</span>
+        </button>
+        <button class="tab-btn" data-status="pending_after_sale">
+            <i class="fas fa-exchange-alt"></i> 售后/退款
+            <span class="count" id="countAfterSale">0</span>
+        </button>
+    </div>
+
+    <!-- 订单列表容器 -->
+    <div class="order-list" id="orderList"></div>
+</div>
+
+<script>
+    // ========== 模拟订单数据 ==========
+    const mockOrders = [
+        {
+            id: 'DD20260422001',
+            storeName: '弘信科技旗舰店',
+            status: 'pending_payment',
+            statusText: '待付款',
+            totalAmount: 12800.00,
+            createTime: '2026-04-22 10:30:00',
+            products: [
+                { id: 1, name: '智慧环保监测系统主机', spec: '型号：HY-6800', price: 9800, quantity: 1, imgIcon: 'microchip' },
+                { id: 2, name: 'PM2.5传感器模块', spec: '精度0.1μg/m³', price: 3000, quantity: 1, imgIcon: 'microphone' }
+            ]
+        },
+        {
+            id: 'DD20260421002',
+            storeName: '绿能环保设备专营店',
+            status: 'pending_payment',
+            statusText: '待付款',
+            totalAmount: 4500.00,
+            createTime: '2026-04-21 15:20:00',
+            products: [
+                { id: 3, name: '实验室纯水机耗材套装', spec: '适配Milli-Q', price: 4500, quantity: 1, imgIcon: 'flask' }
+            ]
+        },
+        {
+            id: 'DD20260420003',
+            storeName: '顺丰速运服务部',
+            status: 'pending_delivery',
+            statusText: '待发货',
+            totalAmount: 1200.00,
+            createTime: '2026-04-20 09:15:00',
+            products: [
+                { id: 4, name: '冷链物流服务', spec: '2-8℃ 恒温运输', price: 1200, quantity: 1, imgIcon: 'snowflake' }
+            ]
+        },
+        {
+            id: 'DD20260419004',
+            storeName: '晨光办公用品集团',
+            status: 'pending_delivery',
+            statusText: '待发货',
+            totalAmount: 890.00,
+            createTime: '2026-04-19 14:00:00',
+            products: [
+                { id: 5, name: 'A4复印纸', spec: '80g 500张/包', price: 45, quantity: 10, imgIcon: 'file-alt' },
+                { id: 6, name: '中性笔套装', spec: '黑色 12支/盒', price: 440, quantity: 1, imgIcon: 'pen' }
+            ]
+        },
+        {
+            id: 'DD20260418005',
+            storeName: '浪潮云伙伴',
+            status: 'pending_receipt',
+            statusText: '待收货',
+            totalAmount: 15600.00,
+            createTime: '2026-04-18 11:00:00',
+            trackingNo: 'SF123456789',
+            estimatedDelivery: '2026-04-25',
+            products: [
+                { id: 7, name: '服务器扩容节点', spec: '2U机架式 64G内存', price: 15600, quantity: 1, imgIcon: 'server' }
+            ]
+        },
+        {
+            id: 'DD20260417006',
+            storeName: '优美家居',
+            status: 'pending_receipt',
+            statusText: '待收货',
+            totalAmount: 3200.00,
+            createTime: '2026-04-17 16:30:00',
+            trackingNo: 'YT987654321',
+            estimatedDelivery: '2026-04-24',
+            products: [
+                { id: 8, name: '人体工学办公椅', spec: '黑色 网布款', price: 3200, quantity: 1, imgIcon: 'chair' }
+            ]
+        },
+        {
+            id: 'DD20260416007',
+            storeName: '北京大学采购中心',
+            status: 'completed',
+            statusText: '已完成',
+            totalAmount: 28300.00,
+            createTime: '2026-04-16 08:45:00',
+            completeTime: '2026-04-22 10:00:00',
+            products: [
+                { id: 9, name: '实验室分析仪器', spec: '气相色谱仪', price: 28300, quantity: 1, imgIcon: 'microscope' }
+            ]
+        },
+        {
+            id: 'DD20260415008',
+            storeName: '清华大学采购办',
+            status: 'completed',
+            statusText: '已完成',
+            totalAmount: 5600.00,
+            createTime: '2026-04-15 10:20:00',
+            completeTime: '2026-04-21 14:30:00',
+            products: [
+                { id: 10, name: '实验耗材套装', spec: '试管、烧杯等', price: 5600, quantity: 1, imgIcon: 'vial' }
+            ]
+        },
+        {
+            id: 'DD20260414009',
+            storeName: '第三方质检机构',
+            status: 'pending_after_sale',
+            statusText: '退款中',
+            totalAmount: 2300.00,
+            createTime: '2026-04-14 13:00:00',
+            afterSaleType: '退货退款',
+            afterSaleReason: '商品与描述不符',
+            products: [
+                { id: 11, name: '水质检测试剂盒', spec: '50次/盒', price: 2300, quantity: 1, imgIcon: 'droplet' }
+            ]
+        },
+        {
+            id: 'DD20260413010',
+            storeName: '中科院物资处',
+            status: 'pending_after_sale',
+            statusText: '售后处理中',
+            totalAmount: 12500.00,
+            createTime: '2026-04-13 09:30:00',
+            afterSaleType: '换货',
+            afterSaleReason: '商品损坏',
+            products: [
+                { id: 12, name: '精密电子天平', spec: '精度0.1mg', price: 12500, quantity: 1, imgIcon: 'weight-scale' }
+            ]
+        }
+    ];
+
+    let currentStatus = 'all';
+
+    // 获取各状态订单数量
+    function getOrderCounts() {
+        const counts = {
+            all: mockOrders.length,
+            pending_payment: mockOrders.filter(o => o.status === 'pending_payment').length,
+            pending_delivery: mockOrders.filter(o => o.status === 'pending_delivery').length,
+            pending_receipt: mockOrders.filter(o => o.status === 'pending_receipt').length,
+            completed: mockOrders.filter(o => o.status === 'completed').length,
+            pending_after_sale: mockOrders.filter(o => o.status === 'pending_after_sale').length
+        };
+        return counts;
+    }
+
+    // 更新计数显示
+    function updateCounts() {
+        const counts = getOrderCounts();
+        document.getElementById('countAll').innerText = counts.all;
+        document.getElementById('countPendingPayment').innerText = counts.pending_payment;
+        document.getElementById('countPendingDelivery').innerText = counts.pending_delivery;
+        document.getElementById('countPendingReceipt').innerText = counts.pending_receipt;
+        document.getElementById('countCompleted').innerText = counts.completed;
+        document.getElementById('countAfterSale').innerText = counts.pending_after_sale;
+    }
+
+    // 渲染订单列表
+    function renderOrders() {
+        const container = document.getElementById('orderList');
+        let filteredOrders = mockOrders;
+        
+        if (currentStatus !== 'all') {
+            filteredOrders = mockOrders.filter(o => o.status === currentStatus);
+        }
+        
+        if (filteredOrders.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>暂无订单</p>
+                    <p style="font-size:13px; margin-top:8px;">去逛逛，发现更多好物</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = filteredOrders.map(order => renderOrderCard(order)).join('');
+    }
+    
+    // 渲染单个订单卡片
+    function renderOrderCard(order) {
+        // 商品列表HTML
+        const productsHtml = order.products.map(product => `
+            <div class="product-item">
+                <div class="product-img">
+                    <i class="fas fa-${product.imgIcon || 'box'}"></i>
+                </div>
+                <div class="product-info">
+                    <div class="product-title">${escapeHtml(product.name)}</div>
+                    <div class="product-spec">${product.spec}</div>
+                    <div class="product-price">
+                        <span class="price">¥${product.price.toFixed(2)}</span>
+                        <span class="quantity">x${product.quantity}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        // 根据状态显示不同按钮
+        let actionButtons = '';
+        const statusClass = getStatusClass(order.status);
+        
+        switch(order.status) {
+            case 'pending_payment':
+                actionButtons = `
+                    <button class="btn-outline" onclick="cancelOrder('${order.id}')">取消订单</button>
+                    <button class="btn-primary" onclick="payOrder('${order.id}')">立即付款</button>
+                `;
+                break;
+            case 'pending_delivery':
+                actionButtons = `
+                    <button class="btn-outline" onclick="contactSeller('${order.id}')">联系卖家</button>
+                    <button class="btn-outline" onclick="remindShip('${order.id}')">提醒发货</button>
+                `;
+                break;
+            case 'pending_receipt':
+                actionButtons = `
+                    <button class="btn-outline" onclick="viewLogistics('${order.id}')">查看物流</button>
+                    <button class="btn-primary" onclick="confirmReceipt('${order.id}')">确认收货</button>
+                `;
+                break;
+            case 'completed':
+                actionButtons = `
+                    <button class="btn-outline" onclick="buyAgain('${order.id}')">再次购买</button>
+                    <button class="btn-outline" onclick="applyAfterSale('${order.id}')">申请售后</button>
+                `;
+                break;
+            case 'pending_after_sale':
+                actionButtons = `
+                    <button class="btn-outline" onclick="viewAfterSale('${order.id}')">查看进度</button>
+                    <button class="btn-danger" onclick="cancelAfterSale('${order.id}')">取消申请</button>
+                `;
+                break;
+            default:
+                actionButtons = `<button class="btn-outline" onclick="viewOrderDetail('${order.id}')">查看详情</button>`;
+        }
+        
+        // 售后特殊显示
+        let afterSaleBadge = '';
+        if (order.status === 'pending_after_sale') {
+            afterSaleBadge = `<span style="margin-left: 8px; font-size: 11px; background: #f3e5f5; padding: 2px 8px; border-radius: 20px; color: #8b5cf6;">${order.afterSaleType || '售后中'}</span>`;
+        }
+        
+        return `
+            <div class="order-card">
+                <div class="order-card-header">
+                    <div class="store-info">
+                        <i class="fas fa-store"></i>
+                        <span class="store-name">${escapeHtml(order.storeName)}</span>
+                    </div>
+                    <div>
+                        <span class="order-status ${statusClass}">${order.statusText}</span>
+                        ${afterSaleBadge}
+                    </div>
+                </div>
+                
+                <div class="order-products">
+                    ${productsHtml}
+                </div>
+                
+                <div class="order-card-footer">
+                    <div class="total-info">
+                        共${order.products.reduce((sum, p) => sum + p.quantity, 0)}件商品 
+                        实付：<span class="total-amount">¥${order.totalAmount.toFixed(2)}</span>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn-outline" onclick="viewOrderDetail('${order.id}')">订单详情</button>
+                        ${actionButtons}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function getStatusClass(status) {
+        const map = {
+            pending_payment: 'pending_payment',
+            pending_delivery: 'pending_delivery',
+            pending_receipt: 'pending_receipt',
+            completed: 'completed',
+            pending_after_sale: 'pending_after_sale'
+        };
+        return map[status] || '';
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // ========== 按钮操作函数 ==========
+    function switchStatus(status) {
+        currentStatus = status;
+        // 更新选项卡样式
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            if (btn.getAttribute('data-status') === status) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        renderOrders();
+    }
+    
+    function viewOrderDetail(orderId) {
+        alert(`查看订单详情\n订单号：${orderId}`);
+        // window.location.href = `qyd-order-detail.html?id=${orderId}`;
+    }
+    
+    function payOrder(orderId) {
+        alert(`跳转支付页面\n订单号：${orderId}`);
+        // window.location.href = `qyd-pay.html?orderId=${orderId}`;
+    }
+    
+    function cancelOrder(orderId) {
+        if (confirm('确定要取消该订单吗？')) {
+            alert(`订单 ${orderId} 已取消`);
+            // 实际需要调用API
+            location.reload();
+        }
+    }
+    
+    function remindShip(orderId) {
+        alert(`已提醒卖家发货\n订单号：${orderId}`);
+    }
+    
+    function contactSeller(orderId) {
+        alert(`联系卖家\n订单号：${orderId}`);
+    }
+    
+    function viewLogistics(orderId) {
+        const order = mockOrders.find(o => o.id === orderId);
+        if (order && order.trackingNo) {
+            window.location.href = `qyd-logistics.html?trackingNo=${order.trackingNo}`;
+        } else {
+            alert(`物流单号：SF${orderId.slice(-6)}`);
+        }
+    }
+    
+    function confirmReceipt(orderId) {
+        if (confirm('确认已收到商品吗？确认后无法撤销')) {
+            alert(`订单 ${orderId} 已确认收货`);
+            location.reload();
+        }
+    }
+    
+    function buyAgain(orderId) {
+        alert(`再次购买\n原订单号：${orderId}`);
+    }
+    
+    function applyAfterSale(orderId) {
+        alert(`申请售后\n订单号：${orderId}`);
+    }
+    
+    function viewAfterSale(orderId) {
+        alert(`查看售后进度\n订单号：${orderId}`);
+    }
+    
+    function cancelAfterSale(orderId) {
+        if (confirm('确定要取消售后申请吗？')) {
+            alert(`售后申请已取消\n订单号：${orderId}`);
+            location.reload();
+        }
+    }
+    
+    // 绑定选项卡事件
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const status = btn.getAttribute('data-status');
+            switchStatus(status);
+        });
+    });
+    
+    // 初始化
+    updateCounts();
+    renderOrders();
+    
+    // 检查URL参数，跳转到指定状态
+    const urlParams = new URLSearchParams(window.location.search);
+    const statusParam = urlParams.get('status');
+    if (statusParam && ['pending_payment', 'pending_delivery', 'pending_receipt', 'completed', 'pending_after_sale'].includes(statusParam)) {
+        switchStatus(statusParam);
+    }
+    
+    // 暴露全局函数
+    window.viewOrderDetail = viewOrderDetail;
+    window.payOrder = payOrder;
+    window.cancelOrder = cancelOrder;
+    window.remindShip = remindShip;
+    window.contactSeller = contactSeller;
+    window.viewLogistics = viewLogistics;
+    window.confirmReceipt = confirmReceipt;
+    window.buyAgain = buyAgain;
+    window.applyAfterSale = applyAfterSale;
+    window.viewAfterSale = viewAfterSale;
+    window.cancelAfterSale = cancelAfterSale;
+</script>
+</body>
+</html>

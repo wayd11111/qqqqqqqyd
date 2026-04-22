@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>商业背书服务 | EcoGov 企业信用升级</title>
+    <!-- Font Awesome 6 (免费图标库) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 全局设计系统 - 现代商业风格 */
+        :root {
+            --primary-green: #0f6e4a;
+            --primary-dark: #0a5338;
+            --primary-light: #e0f2e9;
+            --accent-gold: #f5b042;
+            --gray-bg: #f8fafc;
+            --card-white: #ffffff;
+            --text-main: #1e2a32;
+            --text-sub: #5a6e7a;
+            --border-light: #e9edf2;
+            --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.02), 0 2px 6px rgba(0, 0, 0, 0.03);
+            --shadow-md: 0 20px 35px -12px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 30px 45px -15px rgba(0, 0, 0, 0.15);
+            --transition-default: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        body {
+            background: var(--gray-bg);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            padding: 48px 24px;
+            line-height: 1.4;
+        }
+
+        /* 整体容器 */
+        .upgrade-container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* 返回链接 + 辅助信息 */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-sub);
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(2px);
+            padding: 8px 16px;
+            border-radius: 40px;
+            transition: var(--transition-default);
+            margin-bottom: 32px;
+            border: 1px solid var(--border-light);
+        }
+
+        .back-link i {
+            font-size: 0.85rem;
+            transition: transform 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--primary-green);
+            background: white;
+            border-color: var(--primary-green);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .back-link:hover i {
+            transform: translateX(-4px);
+        }
+
+        /* 头部区域 */
+        .upgrade-header {
+            text-align: center;
+            margin-bottom: 56px;
+        }
+
+        .upgrade-header h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1c4d3a, #0f6e4a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+            margin-bottom: 16px;
+        }
+
+        .upgrade-header p {
+            font-size: 1.1rem;
+            color: var(--text-sub);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 三栏网格布局 - 响应式 */
+        .plan-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            align-items: stretch;
+            margin-bottom: 40px;
+        }
+
+        /* 卡片通用样式 - 现代无边框轻质感 */
+        .plan-card {
+            background: var(--card-white);
+            border-radius: 32px;
+            padding: 36px 28px 40px;
+            position: relative;
+            transition: var(--transition-default);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(15, 110, 74, 0.08);
+            backdrop-filter: blur(0px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 悬浮效果高级 */
+        .plan-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+            border-color: rgba(15, 110, 74, 0.2);
+        }
+
+        /* 推荐卡片（专业版）更强视觉 */
+        .plan-card.featured {
+            background: linear-gradient(145deg, #ffffff, #fefef9);
+            border: 1px solid var(--accent-gold);
+            box-shadow: 0 20px 35px -10px rgba(245, 176, 66, 0.12);
+            transform: scale(1.02);
+            z-index: 2;
+        }
+
+        .plan-card.featured:hover {
+            transform: scale(1.02) translateY(-10px);
+            box-shadow: 0 28px 40px -12px rgba(245, 176, 66, 0.25);
+        }
+
+        /* 热门标签升级版 */
+        .featured-tag {
+            position: absolute;
+            top: -12px;
+            left: 32px;
+            background: linear-gradient(98deg, #f5b042, #ffcd7e);
+            color: #2c2b26;
+            font-weight: 800;
+            font-size: 0.75rem;
+            padding: 6px 18px;
+            border-radius: 40px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            backdrop-filter: blur(2px);
+        }
+
+        /* 套餐名称 & 价格 */
+        .plan-name {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            letter-spacing: -0.2px;
+        }
+
+        .price-wrapper {
+            margin: 20px 0 24px;
+            border-bottom: 2px dashed var(--border-light);
+            padding-bottom: 16px;
+        }
+
+        .plan-price {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--primary-green);
+            display: inline-block;
+        }
+
+        .plan-price span {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-sub);
+        }
+
+        .price-note {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            margin-top: 8px;
+            display: block;
+        }
+
+        /* 特性列表 - 优雅排版 */
+        .feature-list {
+            list-style: none;
+            margin: 16px 0 32px;
+            flex: 1;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-list li i {
+            width: 20px;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .feature-list li .fa-check-circle, 
+        .feature-list li .fa-check {
+            color: var(--primary-green);
+        }
+
+        .feature-list li.disabled {
+            color: #b9c3cb;
+        }
+
+        .feature-list li.disabled i {
+            color: #d4dee6;
+        }
+
+        /* 特殊微标牌 */
+        .badge-new {
+            background: var(--primary-light);
+            color: var(--primary-green);
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+
+        /* 按钮样式 - 现代交互 */
+        .btn-select {
+            width: 100%;
+            padding: 14px 8px;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #f1f5f9;
+            color: var(--primary-green);
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-select i {
+            font-size: 0.9rem;
+            transition: transform 0.2s;
+        }
+
+        .plan-card.featured .btn-select {
+            background: var(--primary-green);
+            color: white;
+            box-shadow: 0 6px 14px rgba(15, 110, 74, 0.25);
+        }
+
+        .btn-select:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.97);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-select:active {
+            transform: translateY(1px);
+        }
+
+        .plan-card.featured .btn-select:hover {
+            background: #0a5b3f;
+            box-shadow: 0 10px 18px rgba(15, 110, 74, 0.35);
+        }
+
+        /* 底部信任区域 */
+        .trust-badge {
+            text-align: center;
+            margin-top: 56px;
+            padding: 28px 20px;
+            background: white;
+            border-radius: 48px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-sub);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .trust-item i {
+            font-size: 1.3rem;
+            color: var(--primary-green);
+        }
+
+        /* 响应式 */
+        @media (max-width: 900px) {
+            body {
+                padding: 32px 20px;
+            }
+            .plan-grid {
+                gap: 24px;
+            }
+            .plan-card {
+                padding: 28px 20px;
+            }
+            .plan-name {
+                font-size: 1.4rem;
+            }
+            .plan-price {
+                font-size: 2.2rem;
+            }
+        }
+
+        @media (max-width: 780px) {
+            .plan-grid {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .plan-card.featured {
+                transform: scale(1);
+            }
+            .plan-card.featured:hover {
+                transform: translateY(-8px);
+            }
+            .upgrade-header h1 {
+                font-size: 1.9rem;
+            }
+        }
+
+        /* 支付模态框 (轻提示升级) */
+        .toast-message {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            background: #1e2a32;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+            pointer-events: none;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(8px);
+            background: rgba(30,42,50,0.9);
+        }
+        .toast-message.show {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+<div class="upgrade-container">
+    <!-- 优雅返回区域 -->
+    <a href="javascript:void(0);" onclick="goBackSmart()" class="back-link">
+        <i class="fas fa-arrow-left"></i> 返回工作台
+    </a>
+
+    <div class="upgrade-header">
+        <h1>升级商业背书 · 赢取政企信任</h1>
+        <p>官方权威背书 + ESG 数字信用，解锁千万级采购机遇</p>
+    </div>
+
+    <div class="plan-grid">
+        <!-- 基础认证 - 免费版 -->
+        <div class="plan-card">
+            <div class="plan-name">基础认证</div>
+            <div class="price-wrapper">
+                <div class="plan-price">¥0 <span>/年</span></div>
+                <span class="price-note">永久免费 · 基础信用档案</span>
+            </div>
+            <ul class="feature-list">
+                <li><i class="fas fa-check-circle"></i> 官方认证标识展示</li>
+                <li><i class="fas fa-check-circle"></i> 企业档案加密托管</li>
+                <li><i class="fas fa-check-circle"></i> 环保合规自评工具</li>
+                <li class="disabled"><i class="fas fa-times-circle"></i> 搜索结果加权优先</li>
+                <li class="disabled"><i class="fas fa-times-circle"></i> 电子投标保函特权</li>
+                <li class="disabled"><i class="fas fa-times-circle"></i> ESG 深度分析报告</li>
+            </ul>
+            <button class="btn-select" id="btnBasic" disabled style="background:#eef2f5; color:#8c9aa6; cursor:default;">
+                <i class="fas fa-shield-alt"></i> 当前版本
+            </button>
+        </div>
+
+        <!-- 专业背书 (AAA) - 推荐方案 -->
+        <div class="plan-card featured">
+            <div class="featured-tag"><i class="fas fa-chart-line"></i> 热荐 · 92%企业选择</div>
+            <div class="plan-name">专业背书 (AAA) </div>
+            <div class="price-wrapper">
+                <div class="plan-price">¥2,980 <span>/年</span></div>
+                <span class="price-note">含税专票 · 享招投标绿色通道</span>
+            </div>
+            <ul class="feature-list">
+                <li><i class="fas fa-check-circle"></i> 官方 AAA 级信用背书</li>
+                <li><i class="fas fa-check-circle"></i> 搜索结果优先展示 <span class="badge-new">排名提升</span></li>
+                <li><i class="fas fa-check-circle"></i> 电子投标保函特权</li>
+                <li><i class="fas fa-check-circle"></i> 优先商机订阅 + 精准推送</li>
+                <li><i class="fas fa-check-circle"></i> 专属客户成功经理</li>
+                <li class="disabled"><i class="fas fa-times-circle"></i> 深度ESG分析报告</li>
+            </ul>
+            <button class="btn-select" onclick="handlePay('专业背书 (AAA)', 2980)">
+                <i class="fas fa-arrow-up"></i> 立即升级
+            </button>
+        </div>
+
+        <!-- 旗舰ESG合作伙伴 -->
+        <div class="plan-card">
+            <div class="plan-name">旗舰ESG合作伙伴</div>
+            <div class="price-wrapper">
+                <div class="plan-price">¥9,800 <span>/年</span></div>
+                <span class="price-note">全维赋能 · 品牌级背书</span>
+            </div>
+            <ul class="feature-list">
+                <li><i class="fas fa-check-circle"></i> 所有专业版全部特权</li>
+                <li><i class="fas fa-check-circle"></i> 深度ESG分析报告 (PDF+API)</li>
+                <li><i class="fas fa-check-circle"></i> 行业白皮书优先准入 + 编委署名</li>
+                <li><i class="fas fa-check-circle"></i> 绿色金融贷款绿色通道</li>
+                <li><i class="fas fa-check-circle"></i> 品牌联名专题报道 & 年度峰会出席</li>
+                <li><i class="fas fa-check-circle"></i> 定制化ESG战略顾问服务</li>
+            </ul>
+            <button class="btn-select" onclick="contactManager()">
+                <i class="fas fa-headset"></i> 联系客户经理
+            </button>
+        </div>
+    </div>
+
+    <!-- 信任度区域：增强转化 -->
+    <div class="trust-badge">
+        <div class="trust-item"><i class="fas fa-building-columns"></i> 已服务 1200+ 上市企业</div>
+        <div class="trust-item"><i class="fas fa-file-signature"></i> 政府数据节点认证</div>
+        <div class="trust-item"><i class="fas fa-lock"></i> 合同电子签章·安全合规</div>
+        <div class="trust-item"><i class="fas fa-clock"></i> 极速审核 24h 上架</div>
+    </div>
+</div>
+
+<!-- 全局轻提示浮层 -->
+<div id="toastMsg" class="toast-message">
+    <i class="fas fa-check-circle"></i> <span id="toastText">操作成功</span>
+</div>
+
+<script>
+    // 云函数 API 基础路径 (保留原有变量，以备后续扩展真实支付)
+    const API_BASE = 'https://eco-project-d2grfzzu4ca135e6d-1423499375.ap-shanghai.app.tcloudbase.com';
+    
+    // 全局模拟云函数调用 (保留实际调用能力，若需要可接入)
+    async function callFunction(name, data) {
+        try {
+            const response = await fetch(`${API_BASE}/${name}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data || {})
+            });
+            return await response.json();
+        } catch (err) {
+            console.warn("云函数调用模拟环境:", err);
+            return { code: "MOCK", message: "演示模式-调用成功" };
+        }
+    }
+
+    // 统一优雅提示函数
+    function showToast(message, isSuccess = true) {
+        const toast = document.getElementById('toastMsg');
+        const toastSpan = document.getElementById('toastText');
+        if (!toast) return;
+        toastSpan.innerText = message;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2800);
+    }
+
+    // 智能返回（保留页面标签状态，优先使用history）
+    function goBackSmart() {
+        if (document.referrer && document.referrer.includes(window.location.host)) {
+            window.history.back();
+        } else {
+            // 如果没有上一页来源，可返回模拟的profile页面或者引导
+            showToast("无上一页记录，可前往控制台", false);
+            setTimeout(() => {
+                window.location.href = "qyd.html?tab=profile";
+            }, 800);
+        }
+    }
+
+    // 处理支付升级 (专业版)
+    async function handlePay(planName, amount) {
+        // 增强用户体验 - 展示加载中的效果
+        const btns = document.querySelectorAll('.btn-select');
+        let targetBtn = null;
+        for(let btn of btns) {
+            if(btn.innerText.includes('立即升级') && btn.closest('.plan-card')?.querySelector('.plan-name')?.innerText.includes('专业背书')) {
+                targetBtn = btn;
+                break;
+            }
+        }
+        if(targetBtn) {
+            const originalText = targetBtn.innerHTML;
+            targetBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> 处理中...';
+            targetBtn.disabled = true;
+            setTimeout(() => { targetBtn.disabled = false; targetBtn.innerHTML = originalText; }, 1500);
+        }
+
+        // 模拟业务逻辑: 调用账户扣费 / 余额校验 (演示调用云函数)
+        try {
+            // 这里调用真实云函数（如果需要支付/创建订单接口，此处接入）
+            // 演示环境调用mock并且展示弹窗，同时调用callFunction接口记录
+            const result = await callFunction('createUpgradeOrder', {
+                plan: planName,
+                amount: amount,
+                userId: "demo_ecogov_001"
+            });
+            console.log("云函数响应:", result);
+            // 支付弹窗友好提示
+            showToast(`✨ 已发起 ${planName} 升级申请，支付金额 ¥${amount.toLocaleString()} (演示流程)`, true);
+            // 实际生产可跳转支付网关，这里仅模拟成功
+            // 可选: 延迟后刷新页面或跳转订单页
+        } catch (err) {
+            console.error(err);
+            showToast(`⚠️ 网络波动，请稍后重试`, false);
+        }
+        
+        // 原生alert（保留原有交互，但改用toast后可以不用alert，但为兼容保留轻提示不破坏体验，不需要alert）
+        // 完全使用toast，移除原生alert让界面更现代。
+    }
+
+    // 联系客户经理 (旗舰版)
+    function contactManager() {
+        // 模拟唤起企业微信或者复制邮箱
+        showToast("📞 专属客户经理将在2小时内致电您，请保持手机畅通", true);
+        // 额外可记录意向, 云函数记录
+        callFunction('recordLead', { plan: "旗舰ESG合作伙伴", action: "contact_sales" }).catch(e=>console.log);
+        // 可选延迟跳转或弹窗
+        setTimeout(() => {
+            if(confirm("是否复制客户经理邮箱？ sales@ecogov.com 用于紧急联系")) {
+                navigator.clipboard?.writeText("sales@ecogov.com").then(()=>{
+                    showToast("邮箱已复制，期待与您携手 ESG 愿景", true);
+                }).catch(()=>{});
+            }
+        }, 500);
+    }
+
+    // 若基础认证点击无效，但保留优雅提示（可选）
+    document.addEventListener('DOMContentLoaded', () => {
+        const basicBtn = document.getElementById('btnBasic');
+        if(basicBtn) {
+            basicBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showToast("您当前已是基础认证用户，升级专业版获取更多权益", false);
+            });
+        }
+
+        // 预留给将来可能的支付回调参数: 检查是否从url带回支付成功状态
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.get('pay_success') === '1') {
+            showToast("🎉 支付成功！您的商业背书等级已更新，权益即刻生效", true);
+            // 清除url参数防止刷新重复
+            const cleanUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+        } else if(urlParams.get('pay_cancel') === '1') {
+            showToast("支付已取消，如有疑问可联系客服", false);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    });
+
+    // 扩展：如果某个按钮需要增加交互 - 完善"联系客户经理"体验，已经支持。同时在旗舰版加上跳转企业微信的模拟
+    // 另外支持全局悬浮卡片动态
+    // 保留之前页面所有风格并增强动态效果: hover 已经用css加强
+    // 另外在价格卡片旁边增加微动效
+    console.log("商业背书服务页面加载完成 - ESG 专业升级版");
+</script>
+
+<!-- 后备样式解决icon细微差别 -->
+</body>
+</html>

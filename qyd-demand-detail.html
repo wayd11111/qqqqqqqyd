@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商机详情 - EcoGov</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+ <script>
+// 云函数 HTTP 触发地址（固定不变）
+const API_BASE = 'https://eco-project-d2grfzzu4ca135e6d-1423499375.ap-shanghai.app.tcloudbase.com';
+
+// 调用云函数
+async function callFunction(name, data) {
+    const response = await fetch(`${API_BASE}/${name}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data || {})
+    });
+    return response.json();
+}
+</script>
+    <style>
+        :root {
+            --primary: #2a8c2a;
+            --bg: #f5f7f9;
+            --white: #ffffff;
+            --border: #e2e8f0;
+            --text-title: #1e293b;
+            --text-content: #475569;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text-content); }
+
+        /* 顶部面包屑 */
+        .breadcrumb { padding: 20px 40px; background: var(--white); border-bottom: 1px solid var(--border); }
+        .breadcrumb a { color: var(--primary); text-decoration: none; font-size: 14px; }
+        .breadcrumb span { font-size: 14px; color: #94a3b8; }
+
+        .detail-container { max-width: 1200px; margin: 30px auto; display: grid; grid-template-columns: 1fr 350px; gap: 30px; padding: 0 20px; }
+
+        /* 左侧主内容 */
+        .content-main { background: var(--white); border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .detail-header { border-bottom: 1px solid var(--border); margin-bottom: 30px; padding-bottom: 20px; }
+        .detail-header h1 { font-size: 26px; color: var(--text-title); margin-bottom: 15px; line-height: 1.3; }
+        .meta-tags { display: flex; gap: 10px; }
+        .tag { padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .tag-urgent { background: #fee2e2; color: #ef4444; }
+        .tag-edu { background: #e0f2fe; color: #0284c7; }
+
+        /* 内容区块 */
+        .info-section { margin-bottom: 35px; }
+        .info-section h3 { font-size: 18px; color: var(--text-title); border-left: 4px solid var(--primary); padding-left: 12px; margin-bottom: 20px; }
+        .info-section p { line-height: 1.8; font-size: 15px; margin-bottom: 10px; }
+        
+        /* 附件列表 */
+        .attachment-card { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 15px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; 
+            transition: 0.3s;
+        }
+        .attachment-card:hover { border-color: var(--primary); background: #f0fdf4; }
+        .file-info { display: flex; align-items: center; gap: 12px; }
+        .file-info i { font-size: 24px; color: #f43f5e; } /* PDF 红色图标 */
+        .btn-download { color: var(--primary); text-decoration: none; font-weight: 600; font-size: 14px; }
+
+        /* 右侧侧边栏卡片 */
+        .side-card { background: var(--white); border-radius: 16px; padding: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .side-card h4 { margin-bottom: 20px; font-size: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        
+        .kv-pair { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; }
+        .kv-pair label { color: #94a3b8; }
+        .kv-pair span { font-weight: 600; color: var(--text-title); }
+
+        .btn-apply { 
+            width: 100%; padding: 16px; background: var(--primary); color: var(--white); 
+            border: none; border-radius: 12px; font-size: 16px; font-weight: 700; 
+            cursor: pointer; transition: 0.3s; margin-top: 10px;
+        }
+        .btn-apply:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(42, 140, 42, 0.2); }
+
+        /* 政策外链 */
+        .policy-link { 
+            display: block; padding: 12px; background: #f8fafc; border-radius: 8px; 
+            color: #475569; text-decoration: none; font-size: 13px; margin-top: 10px;
+            border: 1px dashed #cbd5e1;
+        }
+        .policy-link:hover { color: var(--primary); border-style: solid; }
+    </style>
+</head>
+<body>
+
+<div class="breadcrumb">
+    <a href="index.html">商机大厅</a> <span>/</span> <span>商机详情</span>
+</div>
+
+<div class="detail-container">
+    <main class="content-main">
+        <header class="detail-header">
+            <div class="meta-tags">
+                <span class="tag tag-edu">教育科研</span>
+                <span class="tag tag-urgent">紧急采购</span>
+            </div>
+            <h1>清华大学环境学院：全自动高精度水质监测系统采购需求</h1>
+            <p style="color: #94a3b8; font-size: 14px;">发布时间：2026-04-01 · 浏览次数：1,248 次</p>
+        </header>
+
+        <section class="info-section">
+            <h3>项目背景</h3>
+            <p>为支持“十四五”国家重点实验室绿色升级计划，清华大学环境学院拟采购一套全自动水质监测系统，用于长期监控校内循环水系统的节能指标与排放标准。本项目受国家环保部专项资金支持。</p>
+        </section>
+
+        <section class="info-section">
+            <h3>核心需求</h3>
+            <p>1. **监测精度**：需支持 COD、氨氮、总磷等 8 项参数实时监测，误差率低于 1%。</p>
+            <p>2. **绿色能源**：设备需支持太阳能辅助供电，具备超低功耗待机模式。</p>
+            <p>3. **系统联动**：需提供标准 API 接口，能够无缝接入校级“绿色校园管理后台”。</p>
+            <p>4. **售后要求**：提供不少于 3 年的现场技术支持及系统终身在线升级。</p>
+        </section>
+
+        <section class="info-section">
+            <h3>附件资料</h3>
+            <div class="attachment-card">
+                <div class="file-info">
+                    <i class="fas fa-file-pdf"></i>
+                    <div>
+                        <p style="font-weight: 600; font-size: 14px;">详细技术参数表.pdf</p>
+                        <p style="font-size: 12px; color: #94a3b8;">2.4 MB</p>
+                    </div>
+                </div>
+                <a href="#" class="btn-download"><i class="fas fa-download"></i> 下载</a>
+            </div>
+            <div class="attachment-card">
+                <div class="file-info">
+                    <i class="fas fa-file-word"></i>
+                    <div>
+                        <p style="font-weight: 600; font-size: 14px;">投标申请书模板.docx</p>
+                        <p style="font-size: 12px; color: #94a3b8;">450 KB</p>
+                    </div>
+                </div>
+                <a href="#" class="btn-download"><i class="fas fa-download"></i> 下载</a>
+            </div>
+        </section>
+    </main>
+
+    <aside class="side-bar">
+        <div class="side-card">
+            <h4>项目状态</h4>
+            <div class="kv-pair"><label>项目编号</label><span>THU-2026-0401</span></div>
+            <div class="kv-pair"><label>截止日期</label><span style="color: #ef4444;">2026-05-15</span></div>
+            <div class="kv-pair"><label>预算规模</label><span>￥500,000+</span></div>
+            <div class="kv-pair"><label>采购主体</label><span>清华大学环境学院</span></div>
+            
+            <button class="btn-apply" onclick="goToTender()">立即参与投标</button>
+        </div>
+
+        <div class="side-card">
+            <h4>关联政策指引</h4>
+            <p style="font-size: 13px; margin-bottom: 10px;">本项目符合以下政策扶持标准，中标企业可申请绿色金融补贴：</p>
+            <a href="#" class="policy-link">
+                <i class="fas fa-external-link-alt"></i> 《国家绿色校园建设指南 2025》
+            </a>
+            <a href="#" class="policy-link">
+                <i class="fas fa-external-link-alt"></i> 《高校实验室设备更新财政补贴政策》
+            </a>
+        </div>
+
+        <div class="side-card" style="text-align: center;">
+            <p style="font-size: 12px; color: #94a3b8;">对商机有疑问？</p>
+            <a href="#" style="color: var(--primary); font-size: 14px; font-weight: 600; text-decoration: none;">联系项目发布人</a>
+        </div>
+    </aside>
+</div>
+
+<script>
+    function goToTender() {
+        // 跳转到我们刚才写的投标页面
+        window.location.href = "qyd-tender.html";
+    }
+</script>
+
+</body>
+</html>

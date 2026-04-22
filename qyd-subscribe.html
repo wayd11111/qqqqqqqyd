@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>中标公告精准订阅 - EcoGov</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script>
+// 云函数 HTTP 触发地址（固定不变）
+const API_BASE = 'https://eco-project-d2grfzzu4ca135e6d-1423499375.ap-shanghai.app.tcloudbase.com';
+
+// 调用云函数
+async function callFunction(name, data) {
+    const response = await fetch(`${API_BASE}/${name}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data || {})
+    });
+    return response.json();
+}
+</script>
+    <style>
+        :root { --primary: #29a672; --accent: #fbbf24; --bg: #f4f7f6; }
+        body { font-family: 'PingFang SC', system-ui; background: var(--bg); margin: 0; color: #334155; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .page-header { margin-bottom: 30px; }
+        .page-header h1 { font-size: 24px; color: #1e293b; margin: 0 0 10px 0; }
+        .page-header p { color: #64748b; font-size: 14px; }
+
+        .sub-layout { display: grid; grid-template-columns: 400px 1fr; gap: 30px; }
+
+        /* 左侧配置卡片 */
+        .config-card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .section-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; color: var(--primary); }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 13px; color: #64748b; margin-bottom: 8px; }
+        .form-group select, .form-group input { 
+            width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; transition: 0.2s; 
+        }
+        .form-group select:focus, .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(41,166,114,0.1); }
+
+        /* 标签选择器 */
+        .tag-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .tag { background: #f1f5f9; padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: 0.2s; }
+        .tag.active { background: var(--primary); color: white; }
+
+        /* 右侧预览区 */
+        .preview-pane { display: flex; flex-direction: column; gap: 20px; }
+        .preview-header { background: #1e293b; color: white; padding: 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .notice-card { background: white; border-radius: 12px; padding: 20px; border-left: 4px solid #e2e8f0; transition: 0.3s; }
+        .notice-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-left-color: var(--primary); }
+        .notice-tag { font-size: 10px; padding: 2px 8px; border-radius: 4px; background: #f0fdf4; color: var(--primary); margin-bottom: 8px; display: inline-block; }
+        
+        .btn-submit { 
+            width: 100%; background: var(--primary); color: white; border: none; padding: 15px; 
+            border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s;
+        }
+        .btn-submit:hover { background: #228b5f; transform: translateY(-2px); }
+
+        .push-toggle { display: flex; justify-content: space-between; align-items: center; background: #fffbeb; padding: 15px; border-radius: 8px; border: 1px solid #fef3c7; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header class="page-header">
+    <a href="javascript:history.back()" style="text-decoration:none; color:var(--primary); font-size:14px;"><i class="fas fa-arrow-left"></i> 返回上一页</a>
+    <h1 style="margin-top:15px;">中标公告精准订阅</h1>
+    <p>配置您的订阅维度，系统将为您自动挖掘高校及科研机构的潜在商机。</p>
+</header>
+
+    <div class="sub-layout">
+        <aside class="config-card">
+            <div class="section-title"><i class="fas fa-filter"></i> 订阅维度设置</div>
+            
+            <div class="form-group">
+                <label>行业领域</label>
+                <select>
+                    <option>实验室设备与耗材</option>
+                    <option>信息化建设/软件开发</option>
+                    <option>校园后勤/基建工程</option>
+                    <option>环保设施/污水处理</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>目标地区 (可多选)</label>
+                <div class="tag-container">
+                    <div class="tag active">全部</div>
+                    <div class="tag">上海</div>
+                    <div class="tag">北京</div>
+                    <div class="tag">江苏</div>
+                    <div class="tag">浙江</div>
+                    <div class="tag">广东</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>关键词屏蔽 (排除不相关的项目)</label>
+                <input type="text" placeholder="如：维修、租赁 (逗号分隔)">
+            </div>
+
+            <div class="form-group">
+                <label>特定招标人 (高校采购部门)</label>
+                <input type="text" placeholder="搜索高校名称，如：同济大学">
+            </div>
+
+            <div class="push-toggle">
+                <div>
+                    <div style="font-size: 14px; font-weight: 600;">自动推送商机</div>
+                    <div style="font-size: 11px; color: #92400e;">发现匹配项时通过系统通知并邮件提醒</div>
+                </div>
+                <input type="checkbox" checked style="width: 20px; height: 20px; cursor: pointer;">
+            </div>
+
+            <button class="btn-submit" onclick="saveSubscription()">
+                <i class="fas fa-bell"></i> 开启自动订阅
+            </button>
+        </aside>
+
+        <main class="preview-pane">
+            <div class="preview-header">
+                <div>
+                    <div style="font-size: 12px; opacity: 0.8;">基于当前配置的</div>
+                    <div style="font-size: 18px; font-weight: bold;">实时商机预览 (近7日)</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 20px; font-weight: bold;">124</div>
+                    <div style="font-size: 10px; opacity: 0.8;">匹配公告数</div>
+                </div>
+            </div>
+
+            <div id="notice-list">
+                <div class="notice-card">
+                    <span class="notice-tag">实验室设备</span>
+                    <h3 style="margin: 5px 0; font-size: 16px;">上海交通大学环境学院实验室分析仪器采购项目-中标公告</h3>
+                    <div style="display: flex; gap: 15px; font-size: 12px; color: #94a3b8; margin-top: 10px;">
+                        <span><i class="far fa-building"></i> 招标人：上海交通大学</span>
+                        <span><i class="far fa-calendar"></i> 2026-04-06</span>
+                        <span style="color: var(--primary); font-weight: bold;">金额：¥4,520,000</span>
+                    </div>
+                </div>
+
+                <div class="notice-card">
+                    <span class="notice-tag">信息化建设</span>
+                    <h3 style="margin: 5px 0; font-size: 16px;">复旦大学“智慧校园”二期软件开发服务中标公示</h3>
+                    <div style="display: flex; gap: 15px; font-size: 12px; color: #94a3b8; margin-top: 10px;">
+                        <span><i class="far fa-building"></i> 招标人：复旦大学</span>
+                        <span><i class="far fa-calendar"></i> 2026-04-05</span>
+                        <span style="color: var(--primary); font-weight: bold;">金额：¥1,280,000</span>
+                    </div>
+                </div>
+
+                <div class="notice-card">
+                    <span class="notice-tag">环保设施</span>
+                    <h3 style="margin: 5px 0; font-size: 16px;">同济大学嘉定校区污水处理站设备更新中标结果</h3>
+                    <div style="display: flex; gap: 15px; font-size: 12px; color: #94a3b8; margin-top: 10px;">
+                        <span><i class="far fa-building"></i> 招标人：同济大学</span>
+                        <span><i class="far fa-calendar"></i> 2026-04-03</span>
+                        <span style="color: var(--primary); font-weight: bold;">金额：¥890,000</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; color: #94a3b8; font-size: 13px; margin-top: 10px;">
+                开启订阅后，系统将为您分析竞争对手中标价格走势...
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    // 简单的标签切换逻辑
+    document.querySelectorAll('.tag').forEach(tag => {
+        tag.addEventListener('click', function() {
+            if(this.innerText === '全部') {
+                document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            } else {
+                document.querySelector('.tag:first-child').classList.remove('active');
+                this.classList.toggle('active');
+            }
+        });
+    });
+
+    function saveSubscription() {
+        const btn = document.querySelector('.btn-submit');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在配置算法...';
+        btn.style.background = '#94a3b8';
+        
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-check"></i> 订阅成功';
+            btn.style.background = '#29a672';
+            alert('订阅配置已生效！系统将开始 24h 自动监控中标公告。');
+        }, 1500);
+    }
+</script>
+
+</body>
+</html>

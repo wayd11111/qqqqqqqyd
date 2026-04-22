@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>销售详情 - 供应商工作台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f4f7fc; font-family: 'Segoe UI', Roboto, sans-serif; padding: 30px 24px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card { background: #fff; border-radius: 20px; border: 1px solid #e9edf2; padding: 28px 32px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        .page-header { display: flex; align-items: center; gap: 20px; margin-bottom: 24px; flex-wrap: wrap; }
+        .back-btn { background: none; border: none; font-size: 16px; color: #29a672; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .back-btn:hover { color: #1f8a5c; }
+        h2 { color: #1e2a3e; }
+        .stat-summary { display: flex; gap: 24px; margin-bottom: 28px; flex-wrap: wrap; }
+        .stat-box { background: #f8fafc; border-radius: 20px; padding: 20px; flex: 1; text-align: center; }
+        .stat-value { font-size: 32px; font-weight: bold; color: #29a672; }
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid #edf2f7; }
+        th { background: #f8fafc; font-weight: 600; color: #334155; }
+        .status-badge { padding: 4px 12px; border-radius: 30px; font-size: 12px; display: inline-block; }
+        .status-success { background: #e8f5e9; color: #2e7d32; }
+        .status-pending { background: #fff3e0; color: #e67e22; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <button class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i> 返回工作台</button>
+        <h2><i class="fas fa-chart-line" style="color: #29a672;"></i> 本月销售总额详情</h2>
+    </div>
+    <div class="card">
+        <div class="stat-summary">
+            <div class="stat-box"><div class="stat-value">¥42,500</div><div style="color:#666;">总销售额</div></div>
+            <div class="stat-box"><div class="stat-value">+12.5%</div><div style="color:#666;">环比增长</div></div>
+            <div class="stat-box"><div class="stat-value">156</div><div style="color:#666;">订单总数</div></div>
+        </div>
+        <div class="table-responsive">
+            <table>
+                <thead><tr><th>日期</th><th>订单数</th><th>销售额</th><th>占比</th></tr></thead>
+                <tbody id="salesTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    const salesData = [
+        { date: "03-01 ~ 03-07", orders: 32, amount: 8920, percent: "21.0%" },
+        { date: "03-08 ~ 03-14", orders: 38, amount: 10560, percent: "24.8%" },
+        { date: "03-15 ~ 03-21", orders: 45, amount: 12450, percent: "29.3%" },
+        { date: "03-22 ~ 03-28", orders: 41, amount: 10570, percent: "24.9%" }
+    ];
+    const tbody = document.getElementById('salesTableBody');
+    tbody.innerHTML = salesData.map(d => `<tr><td>${d.date}</td><td>${d.orders}</td><td>¥${d.amount.toFixed(0)}</td><td>${d.percent}</td></tr>`).join('');
+</script>
+<script>
+// 云函数 HTTP 触发地址（固定不变）
+const API_BASE = 'https://eco-project-d2grfzzu4ca135e6d-1423499375.ap-shanghai.app.tcloudbase.com';
+
+// 调用云函数
+async function callFunction(name, data) {
+    const response = await fetch(`${API_BASE}/${name}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data || {})
+    });
+    return response.json();
+}
+</script>
+</body>
+</html>

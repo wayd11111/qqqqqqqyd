@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>企业自评中心 - EcoGov</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script>
+// 云函数 HTTP 触发地址（固定不变）
+const API_BASE = 'https://eco-project-d2grfzzu4ca135e6d-1423499375.ap-shanghai.app.tcloudbase.com';
+
+// 调用云函数
+async function callFunction(name, data) {
+    const response = await fetch(`${API_BASE}/${name}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data || {})
+    });
+    return response.json();
+}
+</script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --primary: #29a672; --blue: #03a9f4; --bg: #f8fafc; }
+        body { font-family: 'PingFang SC', system-ui; background: var(--bg); margin: 0; padding: 20px; color: #334155; }
+        
+        .container { max-width: 1100px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        .card { background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 20px; }
+        
+        /* 顶部标题栏 */
+        .chart-header { border-bottom: 1px solid #f1f5f9; padding: 15px 25px; display: flex; align-items: center; gap: 10px; }
+        .method-tag { background: #e8f5ee; color: var(--primary); padding: 2px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; }
+        
+        /* 左右布局 */
+        .eval-layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; padding: 25px; }
+        
+        /* 左侧小工具 */
+        .tool-box { background: #f9f9f9; padding: 20px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 20px; }
+        .btn-mini { border: 1px solid #ddd; background: white; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .btn-mini.active { background: var(--primary); color: white; border-color: var(--primary); }
+        
+        /* 上传区域样式 */
+        .upload-area { border: 2px dashed #b3e5fc; border-radius: 12px; padding: 25px; text-align: center; color: #81d4fa; cursor: pointer; transition: 0.3s; }
+        .upload-area:hover { background: #f0faff; border-color: var(--blue); }
+        
+        /* 评分卡片样式 */
+        .eval-card { padding: 20px; border-radius: 12px; border: 1px solid #f1f5f9; position: relative; }
+        .eval-card.success { background: #f0fdf4; border-left: 4px solid var(--primary); }
+        .eval-card.warning { background: #fffbeb; border-left: 4px solid #f39c12; }
+        
+        /* 雷达图容器 */
+        .chart-wrapper { height: 350px; width: 100%; margin-top: 10px; position: relative; }
+
+        .back-btn { text-decoration: none; color: #64748b; font-size: 14px; transition: 0.2s; }
+        .back-btn:hover { color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <a href="javascript:history.back()" class="back-btn"><i class="fas fa-chevron-left"></i> 返回上一页</a>
+    <button onclick="window.print()" class="btn-mini"><i class="fas fa-print"></i> 导出自评报告</button>
+</div>
+
+    <div class="card">
+        <div class="chart-header">
+            <span class="method-tag">自评</span>
+            <span style="font-weight: bold; color: #1e293b;">ESG 核心能力自评与历史轨迹</span>
+        </div>
+
+        <div class="eval-layout">
+            <div class="side-controls">
+                <div class="tool-box">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h4 style="margin: 0; font-size: 14px;"><i class="fas fa-history"></i> 查看历史统计</h4>
+                        <div class="view-switcher">
+                            <button onclick="switchView('day')" class="btn-mini active" id="view-day">日</button>
+                            <button onclick="switchView('month')" class="btn-mini" id="view-month">月</button>
+                        </div>
+                    </div>
+                    <input type="date" id="history-calendar" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;">
+                    <p style="font-size: 11px; color: #999; margin-top: 10px;">点击日期切换该时间点的评估快照</p>
+                </div>
+
+                <div class="tool-box" style="background: white; border-color: #e1f5fe;">
+                    <h4 style="margin: 0 0 15px 0; color: var(--blue); font-size: 14px;"><i class="fas fa-cloud-upload-alt"></i> 上传证明信息</h4>
+                    <div class="upload-area" onclick="document.getElementById('esg-file-input').click()">
+                        <i class="fas fa-file-pdf" style="font-size: 32px; margin-bottom: 10px;"></i>
+                        <p style="font-size: 12px; margin: 0;">点击或拖拽 ESG 报告</p>
+                        <input type="file" id="esg-file-input" style="display: none;">
+                    </div>
+                    <div id="upload-progress" style="display: none; margin-top: 15px;">
+                        <div style="width: 100%; height: 4px; background: #eee; border-radius: 2px; overflow: hidden;">
+                            <div id="progress-bar" style="width: 40%; height: 100%; background: var(--blue);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-display" style="background: #fcfcfc; padding: 25px; border-radius: 12px; border: 1px solid #f1f5f9;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; border-bottom: 2px solid #e8f5ee; padding-bottom: 15px;">
+                    <div>
+                        <h3 style="margin: 0; color: var(--primary);">评分概览</h3>
+                        <div id="selected-time-display" style="font-size: 14px; color: #64748b; margin-top: 5px;">2026年3月 (月度平均数据)</div>
+                    </div>
+                    <div style="text-align: right; font-size: 11px; color: #cbd5e1;">数据更新于：2026-03-31 10:00</div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div class="eval-card success">
+                        <div style="color: #64748b; font-size: 12px; margin-bottom: 5px;">绿色生产达标度</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 24px; font-weight: bold; color: var(--primary);">95.5 <small style="font-size: 12px;">分</small></span>
+                            <span style="font-size: 11px; color: var(--primary); background: white; padding: 2px 6px; border-radius: 4px;"><i class="fas fa-caret-up"></i> 1.2%</span>
+                        </div>
+                    </div>
+                    <div class="eval-card warning">
+                        <div style="color: #64748b; font-size: 12px; margin-bottom: 5px;">供应链风险评估</div>
+                        <div style="font-size: 20px; font-weight: bold; color: #f39c12;">低风险等级</div>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 初始化雷达图
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    const radarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['能源减排', '供应链安全', '社会责任', '公司治理', '环境足迹', '数字化程度'],
+            datasets: [{
+                label: '本期评估',
+                data: [85, 90, 78, 92, 88, 80],
+                fill: true,
+                backgroundColor: 'rgba(41, 166, 114, 0.2)',
+                borderColor: '#29a672',
+                pointBackgroundColor: '#29a672',
+                borderWidth: 2
+            }, {
+                label: '历史同期',
+                data: [70, 85, 75, 80, 72, 65],
+                fill: true,
+                backgroundColor: 'rgba(148, 163, 184, 0.1)',
+                borderColor: '#94a3b8',
+                pointBackgroundColor: '#94a3b8',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: '#f1f5f9' },
+                    grid: { color: '#f1f5f9' },
+                    pointLabels: { font: { size: 12 }, color: '#64748b' },
+                    suggestedMin: 0,
+                    suggestedMax: 100
+                }
+            },
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    // 模拟文件上传
+    document.getElementById('esg-file-input').onchange = function() {
+        const progress = document.getElementById('upload-progress');
+        const bar = document.getElementById('progress-bar');
+        progress.style.display = 'block';
+        let width = 0;
+        const interval = setInterval(() => {
+            if (width >= 100) {
+                clearInterval(interval);
+                alert('证明文件上传成功！AI 将开始自动审核。');
+            } else {
+                width += 10;
+                bar.style.width = width + '%';
+            }
+        }, 200);
+    };
+
+    function switchView(type) {
+        document.querySelectorAll('.btn-mini').forEach(b => b.classList.remove('active'));
+        document.getElementById('view-' + type).classList.add('active');
+    }
+</script>
+
+</body>
+</html>

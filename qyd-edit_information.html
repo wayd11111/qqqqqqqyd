@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑企业信息 - 供应商工作台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script>
+// 云函数 HTTP 触发地址（固定不变）
+const API_BASE = 'https://eco-project-d2grfzzu4ca135e6d-1423499375.ap-shanghai.app.tcloudbase.com';
+
+// 调用云函数
+async function callFunction(name, data) {
+    const response = await fetch(`${API_BASE}/${name}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data || {})
+    });
+    return response.json();
+}
+</script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f4f7fc;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 30px 24px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: #fff;
+            border-radius: 20px;
+            border: 1px solid #e9edf2;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            padding: 28px 32px;
+            margin-bottom: 24px;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 16px;
+            color: #29a672;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            color: #1f8a5c;
+        }
+
+        h2 {
+            color: #1e2a3e;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .form-label .required {
+            color: #e74c3c;
+            margin-left: 4px;
+        }
+
+        .form-label .hint {
+            font-weight: normal;
+            font-size: 12px;
+            color: #999;
+            margin-left: 8px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d0d7de;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #29a672;
+            box-shadow: 0 0 0 3px rgba(41, 166, 114, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* 图片上传区域 */
+        .upload-area {
+            border: 2px dashed #d0d7de;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            background: #fafbfc;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-area:hover {
+            border-color: #29a672;
+            background: #f6fef9;
+        }
+
+        .upload-area i {
+            font-size: 36px;
+            color: #29a672;
+            margin-bottom: 8px;
+        }
+
+        .upload-area p {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .logo-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-top: 12px;
+            border: 1px solid #e1e4e8;
+            background: #f9f9f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+
+        .btn-primary {
+            background: #29a672;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #1f8a5c;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: #666;
+            border: 1px solid #d0d7de;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f5f5;
+        }
+
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .tag-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .tag-item {
+            background: #f0f2f5;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tag-item i {
+            cursor: pointer;
+            color: #999;
+        }
+
+        .tag-item i:hover {
+            color: #e74c3c;
+        }
+
+        .add-tag-input {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .add-tag-input input {
+            flex: 1;
+            padding: 8px 12px;
+        }
+
+        .add-tag-input button {
+            background: #29a672;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i> 返回我的</button>
+        <h2><i class="fas fa-building" style="color: #29a672;"></i> 编辑企业信息</h2>
+    </div>
+
+    <div id="successMsg" class="success-message">
+        <i class="fas fa-check-circle"></i> 企业信息已保存！
+    </div>
+
+    <form id="companyForm">
+        <!-- 基本信息 -->
+        <div class="card">
+            <h3 style="margin-bottom: 20px; font-size: 18px;"><i class="fas fa-info-circle" style="color: #29a672;"></i> 基本信息</h3>
+            <div class="two-columns">
+                <div class="form-group">
+                    <label class="form-label">公司名称 <span class="required">*</span></label>
+                    <input type="text" id="companyName" placeholder="请输入公司全称">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">统一社会信用代码 <span class="required">*</span></label>
+                    <input type="text" id="creditCode" placeholder="18位统一社会信用代码">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">公司简介</label>
+                <textarea id="companyDesc" placeholder="介绍公司主营业务、发展历程、核心优势等..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">企业标签 <span class="hint">（点击删除，可添加新标签）</span></label>
+                <div id="tagContainer" class="tag-group"></div>
+                <div class="add-tag-input">
+                    <input type="text" id="newTag" placeholder="输入新标签，如：高新技术企业">
+                    <button type="button" onclick="addTag()"><i class="fas fa-plus"></i> 添加</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 联系信息 -->
+        <div class="card">
+            <h3 style="margin-bottom: 20px; font-size: 18px;"><i class="fas fa-address-card" style="color: #29a672;"></i> 联系信息</h3>
+            <div class="two-columns">
+                <div class="form-group">
+                    <label class="form-label">联系人姓名</label>
+                    <input type="text" id="contactPerson" placeholder="请输入联系人">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">联系电话</label>
+                    <input type="tel" id="contactPhone" placeholder="手机号码">
+                </div>
+            </div>
+            <div class="two-columns">
+                <div class="form-group">
+                    <label class="form-label">电子邮箱</label>
+                    <input type="email" id="contactEmail" placeholder="example@company.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">公司地址</label>
+                    <input type="text" id="companyAddress" placeholder="省/市/区 详细地址">
+                </div>
+            </div>
+        </div>
+
+        <!-- 企业资质与形象 -->
+        <div class="card">
+            <h3 style="margin-bottom: 20px; font-size: 18px;"><i class="fas fa-image" style="color: #29a672;"></i> 企业形象</h3>
+            <div class="form-group">
+                <label class="form-label">企业Logo</label>
+                <div id="logoUploadArea" class="upload-area">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>点击上传企业Logo</p>
+                    <p class="hint" style="font-size: 11px;">支持 jpg、png，建议 200x200</p>
+                </div>
+                <input type="file" id="logoInput" accept="image/jpeg,image/png" style="display: none;">
+                <div id="logoPreview" class="logo-preview"></div>
+            </div>
+        </div>
+
+        <!-- 按钮组 -->
+        <div class="btn-group">
+            <button type="button" class="btn-secondary" onclick="resetForm()">重置</button>
+            <button type="button" class="btn-primary" id="saveBtn"><i class="fas fa-save"></i> 保存修改</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // 企业信息数据（与“我的”页面共享）
+    let companyData = {
+        companyName: "示例绿色能源科技有限公司",
+        creditCode: "91310115MA1KXXXXXX",
+        companyDesc: "专注于绿色能源技术研发与环保产品供应，拥有多项专利认证。",
+        tags: ["高新技术企业", "绿色供应链成员", "ESG A级评分"],
+        contactPerson: "张经理",
+        contactPhone: "138****1234",
+        contactEmail: "eco@example.com",
+        companyAddress: "上海市浦东新区张江高科技园区188号",
+        logo: ""  // base64 或 空
+    };
+
+    // 加载数据到表单
+    function loadCompanyData() {
+        // 从 localStorage 读取保存的企业信息
+        const saved = localStorage.getItem('company_profile');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                companyData = { ...companyData, ...parsed };
+            } catch(e) {}
+        }
+        
+        document.getElementById('companyName').value = companyData.companyName || '';
+        document.getElementById('creditCode').value = companyData.creditCode || '';
+        document.getElementById('companyDesc').value = companyData.companyDesc || '';
+        document.getElementById('contactPerson').value = companyData.contactPerson || '';
+        document.getElementById('contactPhone').value = companyData.contactPhone || '';
+        document.getElementById('contactEmail').value = companyData.contactEmail || '';
+        document.getElementById('companyAddress').value = companyData.companyAddress || '';
+        
+        // 渲染标签
+        renderTags();
+        
+        // 渲染Logo预览
+        if (companyData.logo) {
+            const logoPreview = document.getElementById('logoPreview');
+            logoPreview.innerHTML = `<img src="${companyData.logo}" alt="企业Logo">`;
+        }
+    }
+    
+    // 渲染标签
+    function renderTags() {
+        const container = document.getElementById('tagContainer');
+        if (!container) return;
+        container.innerHTML = companyData.tags.map((tag, index) => `
+            <div class="tag-item">
+                ${escapeHtml(tag)}
+                <i class="fas fa-times-circle" onclick="removeTag(${index})"></i>
+            </div>
+        `).join('');
+    }
+    
+    // 删除标签
+    window.removeTag = function(index) {
+        companyData.tags.splice(index, 1);
+        renderTags();
+    };
+    
+    // 添加标签
+    window.addTag = function() {
+        const input = document.getElementById('newTag');
+        const tagValue = input.value.trim();
+        if (!tagValue) {
+            alert('请输入标签内容');
+            return;
+        }
+        if (companyData.tags.length >= 8) {
+            alert('最多添加8个标签');
+            return;
+        }
+        companyData.tags.push(tagValue);
+        renderTags();
+        input.value = '';
+    };
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // Logo上传逻辑
+    const logoUploadArea = document.getElementById('logoUploadArea');
+    const logoInput = document.getElementById('logoInput');
+    const logoPreview = document.getElementById('logoPreview');
+    
+    logoUploadArea.addEventListener('click', () => logoInput.click());
+    logoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            if (file.size > 2 * 1024 * 1024) {
+                alert('图片大小不能超过2MB');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                companyData.logo = ev.target.result;
+                logoPreview.innerHTML = `<img src="${companyData.logo}" alt="企业Logo">`;
+            };
+            reader.readAsDataURL(file);
+        }
+        logoInput.value = '';
+    });
+    
+    // 保存修改
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.addEventListener('click', () => {
+        // 收集表单数据
+        const newCompanyName = document.getElementById('companyName').value.trim();
+        if (!newCompanyName) {
+            alert('请填写公司名称');
+            return;
+        }
+        const newCreditCode = document.getElementById('creditCode').value.trim();
+        if (!newCreditCode) {
+            alert('请填写统一社会信用代码');
+            return;
+        }
+        
+        companyData.companyName = newCompanyName;
+        companyData.creditCode = newCreditCode;
+        companyData.companyDesc = document.getElementById('companyDesc').value;
+        companyData.contactPerson = document.getElementById('contactPerson').value;
+        companyData.contactPhone = document.getElementById('contactPhone').value;
+        companyData.contactEmail = document.getElementById('contactEmail').value;
+        companyData.companyAddress = document.getElementById('companyAddress').value;
+        
+        // 保存到 localStorage
+        localStorage.setItem('company_profile', JSON.stringify(companyData));
+        
+        // 同时更新“我的”页面中可能显示的实时数据（通过存储事件触发）
+        localStorage.setItem('company_profile_updated', Date.now().toString());
+        
+        // 显示成功消息
+        const successDiv = document.getElementById('successMsg');
+        successDiv.style.display = 'block';
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> 保存中...';
+        
+        setTimeout(() => {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fas fa-save"></i> 保存修改';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 2000);
+            
+            // 询问是否返回“我的”页面
+            if (confirm('企业信息已保存！是否返回“我的”页面查看？')) {
+                goBack();
+            }
+        }, 800);
+    });
+    
+    // 重置表单
+    function resetForm() {
+        if (confirm('确定要重置所有修改吗？未保存的内容将丢失。')) {
+            loadCompanyData();
+        }
+    }
+    
+    // 返回“我的”页面
+    function goBack() {
+        // 如果有上一页且不是当前页，则返回
+        if (document.referrer && document.referrer.includes('qyd-profile')) {
+            history.back();
+        } else {
+            window.location.href = 'qyd.html?tab=profile';
+        }
+    }
+    
+    // 页面加载时初始化
+    loadCompanyData();
+    
+    // 监听其他页面的更新（保持同步）
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'company_profile') {
+            loadCompanyData();
+        }
+    });
+</script>
+</body>
+</html>

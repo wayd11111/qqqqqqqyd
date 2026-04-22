@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>待办中心 - EcoGov 企业工作台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+   <script>
+// 云函数 HTTP 触发地址（固定不变）
+const API_BASE = 'https://eco-project-d2grfzzu4ca135e6d-1423499375.ap-shanghai.app.tcloudbase.com';
+
+// 调用云函数
+async function callFunction(name, data) {
+    const response = await fetch(`${API_BASE}/${name}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data || {})
+    });
+    return response.json();
+}
+</script>
+    <style>
+        :root {
+            --primary: #29a672;
+            --bg: #f4f7f6;
+            --sidebar-width: 240px;
+            --border: #e8e8e8;
+            --text-main: #333;
+            --text-sub: #888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); display: flex; height: 100vh; overflow: hidden; }
+
+        /* --- 左侧固定导航 --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: #fff;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+        }
+        .sidebar-header { padding: 0 25px 30px; border-bottom: 1px solid #f9f9f9; margin-bottom: 20px; }
+        .sidebar-header h2 { font-size: 18px; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+
+        .nav-group { flex: 1; }
+        .nav-item {
+            padding: 14px 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #555;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.3s;
+            cursor: pointer;
+            border-right: 3px solid transparent;
+        }
+        .nav-item:hover { background: #f0fdf4; color: var(--primary); }
+        .nav-item.active { background: #f0fdf4; color: var(--primary); border-right-color: var(--primary); font-weight: bold; }
+        .nav-item i { width: 18px; text-align: center; font-size: 16px; }
+
+        /* --- 右侧内容区 --- */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        
+        /* 顶部筛选栏 */
+        .content-header {
+            background: #fff;
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .search-box { position: relative; }
+        .search-box input {
+            padding: 8px 15px 8px 35px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            width: 280px;
+            outline: none;
+            font-size: 13px;
+        }
+        .search-box i { position: absolute; left: 12px; top: 10px; color: #aaa; }
+
+        /* 列表区域 */
+        .list-container { padding: 30px 40px; }
+        .section-title { margin-bottom: 20px; font-size: 16px; display: flex; align-items: center; gap: 10px; }
+
+        /* 数据行样式 */
+        .data-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid transparent;
+            transition: 0.2s;
+        }
+        .data-card:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        
+        .info-col { display: flex; gap: 20px; align-items: center; flex: 1; }
+        .type-icon { width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        
+        .status-tag { font-size: 12px; padding: 3px 10px; border-radius: 4px; margin-left: 10px; }
+        .tag-red { background: #fff1f0; color: #ff4d4f; border: 1px solid #ffa39e; }
+        .tag-blue { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+        .tag-orange { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
+        .tag-green { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+
+        .btn-action {
+            padding: 8px 18px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background: #fff;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.3s;
+        }
+        .btn-action:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-primary { background: var(--primary); color: #fff; border: none; }
+        .btn-primary:hover { background: #238c60; color: #fff; }
+
+        .time { font-size: 12px; color: #999; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-leaf"></i> EcoGov 待办</h2>
+        </div>
+        <div class="nav-group">
+            <div class="nav-item active" onclick="filterType('all')"><i class="fas fa-tasks"></i> 全部待办</div>
+            <div class="nav-item" onclick="filterType('bidding')"><i class="fas fa-gavel"></i> 招标通知</div>
+            <div class="nav-item" onclick="filterType('orders')"><i class="fas fa-shopping-cart"></i> 订单通知</div>
+            <div class="nav-item" onclick="filterType('system')"><i class="fas fa-bell"></i> 系统通知</div>
+        </div>
+        <div style="padding: 20px; font-size: 12px; color: #ccc; border-top: 1px solid #f9f9f9;">
+            © 2026 EcoGov Enterprise
+        </div>
+    </div>
+
+    <div class="main-content">
+        <header class="content-header">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="搜索项目名称、订单号或关键词...">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <select style="padding: 8px; border-radius: 4px; border: 1px solid #ddd; font-size: 13px;">
+                    <option>按时间排序</option>
+                    <option>按紧急程度排序</option>
+                </select>
+                <button class="btn-action" onclick="location.reload()"><i class="fas fa-sync-alt"></i></button>
+            </div>
+        </header>
+
+        <div class="list-container">
+            <h3 class="section-title">未完成事项 (8)</h3>
+
+            <div class="data-card" data-type="bidding">
+                <div class="info-col">
+                    <div class="type-icon" style="background: #fff1f0; color: #ff4d4f;"><i class="fas fa-gavel"></i></div>
+                    <div>
+                        <div style="font-weight: bold;">[招标驳回] 清华大学智慧水务一期工程 <span class="status-tag tag-red">需重新提交</span></div>
+                        <div class="time">发布时间：2026-04-05 10:20 · 截止剩余：2天</div>
+                    </div>
+                </div>
+                <button class="btn-action btn-primary" onclick="location.href='qyd-tender.html'">修改方案</button>
+            </div>
+
+            <div class="data-card" data-type="bidding">
+                <div class="info-col">
+                    <div class="type-icon" style="background: #e6f7ff; color: #1890ff;"><i class="fas fa-gavel"></i></div>
+                    <div>
+                        <div style="font-weight: bold;">[招标中标] 复旦大学实验室空气净化器采购 <span class="status-tag tag-green">已中标</span></div>
+                        <div class="time">发布时间：2026-04-01 · 请在 3 日内签署电子合同</div>
+                    </div>
+                </div>
+                <button class="btn-action">查看合同</button>
+            </div>
+
+            <div class="data-card" data-type="orders">
+                <div class="info-col">
+                    <div class="type-icon" style="background: #e6f7ff; color: #1890ff;"><i class="fas fa-truck"></i></div>
+                    <div>
+                        <div style="font-weight: bold;">[待发货] 浙江大学环境学院耗材订单 (NO.77281) <span class="status-tag tag-blue">待出库</span></div>
+                        <div class="time">下单时间：2026-04-06 09:15 · 商品数量：12件</div>
+                    </div>
+                </div>
+                <button class="btn-action btn-primary">填写单号</button>
+            </div>
+
+            <div class="data-card" data-type="orders">
+                <div class="info-col">
+                    <div class="type-icon" style="background: #f6ffed; color: #52c41a;"><i class="fas fa-check-double"></i></div>
+                    <div>
+                        <div style="font-weight: bold;">[对账提醒] 同济大学 3月份账期确认 <span class="status-tag tag-orange">待核对</span></div>
+                        <div class="time">截止日期：2026-04-15 · 涉及金额：￥128,400.00</div>
+                    </div>
+                </div>
+                <button class="btn-action">立即对账</button>
+            </div>
+
+            <div class="data-card" data-type="orders">
+                <div class="info-col">
+                    <div class="type-icon" style="background: #f0f0f0; color: #888;"><i class="fas fa-shipping-fast"></i></div>
+                    <div>
+                        <div style="font-weight: bold;">[运输中] 南京大学 智能感应模块 x50 <span class="status-tag tag-blue">顺丰运输中</span></div>
+                        <div class="time">最新地点：上海分拨中心已发出 · 预计明天送达</div>
+                    </div>
+                </div>
+                <button class="btn-action">查看物流</button>
+            </div>
+
+            <div class="data-card" data-type="system">
+                <div class="info-col">
+                    <div class="type-icon" style="background: #fff7e6; color: #faad14;"><i class="fas fa-id-card"></i></div>
+                    <div>
+                        <div style="font-weight: bold;">[资质预警] 您的“危险化学品经营许可证”即将到期 <span class="status-tag tag-red">极速处理</span></div>
+                        <div class="time">有效期至：2026-05-01 · 逾期将影响相关商品上架</div>
+                    </div>
+                </div>
+                <button class="btn-action btn-primary">去续期</button>
+            </div>
+
+            <div class="data-card" data-type="system">
+                <div class="info-col">
+                    <div class="type-icon" style="background: #f0f0f0; color: #555;"><i class="fas fa-user-shield"></i></div>
+                    <div>
+                        <div style="font-weight: bold;">[安全提醒] 您的账号在新的 IP 地址登录 <span class="status-tag tag-orange">风险评估</span></div>
+                        <div class="time">登录地点：广东省深圳市 · 时间：今天 08:30</div>
+                    </div>
+                </div>
+                <button class="btn-action">是我本人</button>
+            </div>
+
+            <div class="data-card" data-type="system">
+                <div class="info-col">
+                    <div class="type-icon" style="background: #e6f7ff; color: #1890ff;"><i class="fas fa-lightbulb"></i></div>
+                    <div>
+                        <div style="font-weight: bold;">[商机推荐] 根据您的经营类目，为您推荐了 3 个新标讯 <span class="status-tag tag-green">新机会</span></div>
+                        <div class="time">匹配高校：武汉大学、中山大学 · 点击查看详情</div>
+                    </div>
+                </div>
+                <button class="btn-action">立即查看</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function filterType(type) {
+            // 切换导航激活状态
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // 过滤数据卡片
+            document.querySelectorAll('.data-card').forEach(card => {
+                if (type === 'all' || card.getAttribute('data-type') === type) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

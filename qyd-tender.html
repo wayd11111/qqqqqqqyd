@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提交投标方案 - EcoGov</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+// 初始化云开发
+const app = cloudbase.init({
+  env: "eco-project"  // 替换成您的环境ID，例如 "ecogov-1g2p3q4r"
+});
+
+// 匿名登录（允许前端直接访问数据库）
+// 注意：需要在云开发控制台开启匿名登录
+app.auth().anonymousAuthProvider().signIn().then(() => {
+  console.log("云开发登录成功");
+}).catch(err => {
+  console.error("登录失败", err);
+});
+
+// 获取数据库引用
+const db = app.database();
+
+// 获取当前用户ID（匿名登录后会自动生成）
+let currentUserId = null;
+app.auth().getLoginState().then(loginState => {
+  if (loginState) {
+    currentUserId = loginState.user.uid;
+    console.log("当前用户ID:", currentUserId);
+  }
+});
+</script>
+    <style>
+        :root {
+            --primary: #2a8c2a;
+            --bg: #f0f2f5;
+            --border: #e1e4e8;
+            --text-main: #24292e;
+            --text-secondary: #586069;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text-main); line-height: 1.6; }
+
+        .top-nav { background: #fff; padding: 15px 40px; border-bottom: 1px solid var(--border); font-size: 14px; }
+        .top-nav a { color: var(--primary); text-decoration: none; }
+
+        .tender-wrapper { 
+            display: grid; 
+            grid-template-columns: 380px 1fr; 
+            gap: 25px; 
+            max-width: 1300px; 
+            margin: 30px auto; 
+            padding: 0 20px;
+        }
+
+        /* 左侧需求卡片 */
+        .requirement-side { background: #fff; border-radius: 12px; padding: 25px; height: fit-content; position: sticky; top: 20px; border: 1px solid var(--border); }
+        .side-tag { background: #eef7ee; color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .side-title { font-size: 18px; margin: 15px 0; }
+        .side-info-item { margin-bottom: 15px; font-size: 14px; }
+        .side-info-item label { color: var(--text-secondary); display: block; }
+        .budget-box { background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 4px solid var(--primary); margin-top: 20px; }
+
+        /* 右侧投标表单 */
+        .form-side { background: #fff; border-radius: 12px; padding: 40px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .form-header { border-bottom: 1px solid #eee; margin-bottom: 30px; padding-bottom: 20px; }
+        
+        .form-group { margin-bottom: 25px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 10px; font-size: 15px; }
+        .form-group input, .form-group textarea, .form-group select { 
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; font-size: 14px; 
+        }
+        .form-group input:focus { border-color: var(--primary); }
+
+        /* 价格输入 */
+        .price-wrapper { position: relative; width: 240px; }
+        .price-wrapper input { padding-left: 30px; font-weight: bold; color: #d32f2f; }
+        .price-wrapper::before { content: "￥"; position: absolute; left: 12px; top: 12px; color: #d32f2f; }
+
+        /* --- 多文件上传组件样式 --- */
+        .file-count-tag { font-size: 12px; font-weight: normal; color: var(--text-secondary); background: #f1f5f9; padding: 2px 8px; border-radius: 4px; margin-left: 10px; }
+        .multi-upload-container { border: 1px solid var(--border); border-radius: 12px; background: #fff; overflow: hidden; }
+        
+        .file-list-area { padding: 10px; background: #fcfcfc; max-height: 250px; overflow-y: auto; }
+        .file-list-area:empty { display: none; }
+
+        .file-status-card { display: flex; align-items: center; background: #fff; padding: 10px 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 8px; }
+        .file-icon { font-size: 24px; color: #ef4444; margin-right: 15px; }
+        .file-info { flex: 1; overflow: hidden; }
+        .file-info .name { display: block; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-info .size { font-size: 11px; color: var(--text-secondary); }
+        .file-actions { display: flex; align-items: center; gap: 12px; }
+        .btn-delete { color: #94a3b8; cursor: pointer; font-size: 18px; transition: 0.2s; }
+        .btn-delete:hover { color: #ef4444; }
+
+        .upload-drop-zone { padding: 30px; text-align: center; cursor: pointer; background: #f8fafc; transition: 0.3s; border-top: 1px solid #eee; }
+        .upload-drop-zone:hover { background: #f0fdf4; }
+        .upload-prompt { display: flex; align-items: center; justify-content: center; gap: 15px; }
+        .upload-icon { font-size: 28px; color: var(--primary); }
+        .upload-text { text-align: left; }
+        .main-text { font-size: 14px; font-weight: 600; color: #334155; }
+        .sub-text { font-size: 12px; color: #94a3b8; }
+
+        /* 底部按钮 */
+        .btn-row { display: flex; gap: 15px; margin-top: 40px; }
+        .btn-submit { background: var(--primary); color: #fff; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 2; font-size: 16px; }
+        .btn-save { background: #fff; color: #666; border: 1px solid #ddd; padding: 14px; border-radius: 8px; cursor: pointer; flex: 1; }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<nav class="top-nav">
+    <a href="#">商机大厅</a> <i class="fas fa-chevron-right" style="font-size: 10px; margin: 0 5px;"></i>
+    <span>提交投标</span>
+</nav>
+
+<div class="tender-wrapper">
+    <aside class="requirement-side">
+        <span class="side-tag">项目编号：EDU-2026-0012</span>
+        <h2 class="side-title">需采购“全自动智能水质监测处理系统”一套</h2>
+        <div class="side-info-item"><label>发布单位</label><p>清华大学环境学院</p></div>
+        <div class="side-info-item"><label>截止时间</label><p>2026-05-15</p></div>
+        <div class="budget-box">
+            <label style="font-size: 12px; color: #666;">采购预算</label>
+            <p style="font-size: 20px; color: var(--primary); font-weight: bold;">￥500,000 - 800,000</p>
+        </div>
+    </aside>
+
+    <main class="form-side">
+        <div class="form-header">
+            <h2>填写投标申请</h2>
+            <p style="font-size: 14px; color: #999;">请确保上传所有必要的资质证明与技术方案附件。</p>
+        </div>
+
+        <form id="tender-form">
+            <div class="form-group">
+                <label>投标总报价 (含税)</label>
+                <div class="price-wrapper">
+                    <input type="number" placeholder="0.00" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>方案摘要</label>
+                <textarea rows="4" placeholder="请简要说明您的方案核心优势..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>技术方案及招标书附件 <span id="file-count" class="file-count-tag">已上传 0 份</span></label>
+                <div class="multi-upload-container">
+                    <div id="file-list-container" class="file-list-area"></div>
+                    
+                    <div class="upload-drop-zone" id="drop-zone" onclick="document.getElementById('bid-files').click()">
+                        <div class="upload-prompt">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <div class="upload-text">
+                                <p class="main-text">点击或拖拽文件上传</p>
+                                <p class="sub-text">支持 PDF, Word, JPG 等格式，多文件支持</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="file" id="bid-files" class="hidden" multiple onchange="processFiles(this.files)">
+            </div>
+
+            <div class="btn-row">
+                <button type="button" class="btn-save">保存草稿</button>
+                <button type="button" class="btn-submit" onclick="submitFinal()">提交投标申请</button>
+            </div>
+        </form>
+    </main>
+</div>
+
+<script>
+    let uploadedFiles = [];
+
+    // 处理文件逻辑（秒传版）
+    function processFiles(files) {
+        if (!files || files.length === 0) return;
+
+        const newFiles = Array.from(files);
+        newFiles.forEach(file => {
+            const isExist = uploadedFiles.some(f => f.name === file.name && f.size === file.size);
+            if (!isExist) {
+                uploadedFiles.push(file);
+            }
+        });
+
+        renderFileList();
+        document.getElementById('bid-files').value = ''; // 重置input
+    }
+
+    // 渲染文件列表
+    function renderFileList() {
+        const container = document.getElementById('file-list-container');
+        const countTag = document.getElementById('file-count');
+        container.innerHTML = ''; 
+
+        uploadedFiles.forEach((file, index) => {
+            let iconClass = 'fa-file-pdf';
+            if (file.name.match(/\.(doc|docx)$/i)) iconClass = 'fa-file-word';
+            if (file.name.match(/\.(xls|xlsx)$/i)) iconClass = 'fa-file-excel';
+            if (file.name.match(/\.(jpg|png|jpeg)$/i)) iconClass = 'fa-file-image';
+
+            const sizeStr = (file.size / 1024 / 1024).toFixed(2) + " MB";
+
+            const card = document.createElement('div');
+            card.className = 'file-status-card';
+            card.innerHTML = `
+                <i class="fas ${iconClass} file-icon"></i>
+                <div class="file-info">
+                    <span class="name" title="${file.name}">${file.name}</span>
+                    <span class="size">${sizeStr}</span>
+                </div>
+                <div class="file-actions">
+                    <i class="fas fa-check-circle" style="color:#22c55e; font-size:16px;"></i>
+                    <i class="fas fa-times-circle btn-delete" onclick="removeFile(${index}, event)"></i>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        countTag.innerText = `已上传 ${uploadedFiles.length} 份`;
+    }
+
+    // 删除文件
+    function removeFile(index, event) {
+        event.stopPropagation();
+        uploadedFiles.splice(index, 1);
+        renderFileList();
+    }
+
+    // 拖拽支持
+    const zone = document.getElementById('drop-zone');
+    zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.style.background = "#f0fdf4"; });
+    zone.addEventListener('dragleave', () => { zone.style.background = "#f8fafc"; });
+    zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.style.background = "#f8fafc";
+        if (e.dataTransfer.files) processFiles(e.dataTransfer.files);
+    });
+
+    function submitFinal() {
+        if(uploadedFiles.length === 0) {
+            alert('请至少上传一份技术方案附件');
+            return;
+        }
+        alert('投标申请提交成功！');
+    }
+</script>
+
+</body>
+</html>

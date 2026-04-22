@@ -1,0 +1,376 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>官方客服 - EcoPub</title>
+  <script>
+// 云函数 HTTP 触发地址（固定不变）
+const API_BASE = 'https://eco-project-d2grfzzu4ca135e6d-1423499375.ap-shanghai.app.tcloudbase.com';
+
+// 调用云函数
+async function callFunction(name, data) {
+    const response = await fetch(`${API_BASE}/${name}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data || {})
+    });
+    return response.json();
+}
+</script>
+    <style>
+        /* 复用你全局的字体和渐入动画 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f9f7;
+            margin: 0;
+            padding: 20px;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .service-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* 顶部欢迎卡片 */
+        .welcome-card {
+            background: linear-gradient(135deg, #2a8c2a, #4caf50);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(42, 140, 42, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .welcome-card h1 { margin: 0; font-size: 28px; }
+        .welcome-card p { opacity: 0.9; margin-top: 10px; }
+
+        /* 常见问题区域 */
+        .section-title {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: #2a8c2a;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+
+        .faq-list {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .faq-item {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .faq-item:hover {
+            border-color: #2a8c2a;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transform: translateX(5px);
+        }
+
+        .faq-item h4 { margin: 0 0 8px 0; color: #2a8c2a; }
+        .faq-item p { margin: 0; color: #666; font-size: 14px; }
+
+        /* 联系方式网格 */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .contact-method {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid #eee;
+            transition: all 0.3s;
+        }
+
+        .contact-method:hover {
+            background: #f0f9f0;
+            border-color: #2a8c2a;
+        }
+
+        .contact-icon { font-size: 32px; margin-bottom: 10px; display: block; }
+        .contact-btn {
+            display: inline-block;
+            margin-top: 15px;
+            background: #2a8c2a;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            font-size: 24px;
+            color: #666;
+        }
+
+      /* 聊天弹窗容器 - 居中上方模式 */
+.chat-modal {
+    position: fixed;
+    top: 15%;            /* 距离顶部 15% */
+    left: 50%;           /* 水平居中 */
+    transform: translate(-50%, -20px); /* 初始位置稍微往上移一点 */
+    width: 450px;        /* 居中模式可以稍微宽一点，更有页面感 */
+    height: 600px;
+    background: white;
+    border-radius: 20px; /* 四角圆润 */
+    box-shadow: 0 15px 50px rgba(0,0,0,0.2); /* 增加阴影深度 */
+    display: flex;
+    flex-direction: column;
+    opacity: 0;          /* 初始透明 */
+    visibility: hidden;  /* 初始隐藏 */
+    transition: all 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    z-index: 2000;
+}
+
+/* 激活状态 */
+.chat-modal.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0); /* 回到中心位置 */
+}
+
+/* 遮罩层 - 防止在聊天时误点背景 */
+.chat-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4); /* 半透明黑 */
+    backdrop-filter: blur(4px);   /* 背景模糊，显高级 */
+    display: none;
+    z-index: 1999;
+}
+
+.chat-overlay.active {
+    display: block;
+}
+
+/* 头部 */
+.chat-header {
+    background: #2a8c2a;
+    color: white;
+    padding: 15px;
+    border-radius: 15px 15px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #4eff4e;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.close-chat { cursor: pointer; font-size: 24px; }
+
+/* 聊天内容区 */
+.chat-body {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background: #f9f9f9;
+}
+
+.msg-time { text-align: center; font-size: 12px; color: #bbb; margin: 10px 0; }
+
+.msg-left, .msg-right {
+    max-width: 80%;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.msg-left {
+    background: white;
+    color: #333;
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.03);
+}
+
+.msg-right {
+    background: #2a8c2a;
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 2px;
+}
+
+/* 底部输入框 */
+.chat-footer {
+    padding: 15px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+}
+
+.chat-footer input {
+    flex: 1;
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    border-radius: 20px;
+    outline: none;
+}
+
+.chat-footer button {
+    background: #2a8c2a;
+    color: white;
+    border: none;
+    padding: 0 15px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+    </style>
+</head>
+<body>
+
+    <div class="back-btn" onclick="history.back()">⬅️</div>
+
+    <div class="service-container">
+        <div class="welcome-card">
+            <h1>您好，有什么可以帮您？</h1>
+            <p>EcoPub 绿色客服团队 7×24 小时为您守护</p>
+        </div>
+
+        <div class="section-title">常见问题自助解决</div>
+        <div class="faq-list">
+            <div class="faq-item" onclick="alert('物流信息通常在下单后24小时内更新。')">
+                <h4>📦 我的订单什么时候发货？</h4>
+                <p>绿色环保包装需要精细处理，通常在1-2个工作日内发出。</p>
+            </div>
+            <div class="faq-item" onclick="alert('积分可在“我的贡献”中兑换环保礼品。')">
+                <h4>🌱 积分如何兑换环保贡献？</h4>
+                <p>每100积分可抵扣1元，或参与“植树计划”捐赠积分。</p>
+            </div>
+            <div class="faq-item" onclick="alert('支持7天无理由退换，请保持包装完整。')">
+                <h4>🔄 退换货政策说明</h4>
+                <p>我们支持所有未拆封商品的绿色回收退换服务。</p>
+            </div>
+        </div>
+
+        <div class="section-title">人工服务</div>
+        <div class="contact-grid">
+            <div class="contact-method">
+                <span class="contact-icon">👩‍💻</span>
+                <strong>在线客服</strong>
+                <p style="font-size: 12px; color: #888;">推荐使用，响应最快</p>
+                <a href="#" class="contact-btn" onclick="openChat()">立即咨询</a>
+            </div>
+            <div class="contact-method">
+                <span class="contact-icon">📞</span>
+                <strong>热线电话</strong>
+                <p style="font-size: 12px; color: #888;">400-123-4567</p>
+                <a href="tel:4001234567" class="contact-btn">拨号联系</a>
+            </div>
+        </div>
+
+        <p style="text-align: center; color: #ccc; font-size: 12px; margin-top: 50px;">
+            EcoPub © 2026 让每一份消费都成为对地球的保护
+        </p>
+    </div>
+
+<div id="chatOverlay" class="chat-overlay" onclick="closeChat()"></div>
+
+<div id="chatModal" class="chat-modal">
+    <div class="chat-header">
+        <div class="chat-user-info" style="display: flex; align-items: center;">
+            <div style="width:35px; height:35px; background:#fff; border-radius:50%; margin-right:10px; display:flex; align-items:center; justify-content:center; font-size:20px;">🍃</div>
+            <div>
+                <strong>EcoPub 官方客服</strong>
+                <div style="font-size: 10px; opacity: 0.8;">正在输入中...</div>
+            </div>
+        </div>
+        <span class="close-chat" onclick="closeChat()">×</span>
+    </div>
+    <div class="chat-body" id="chatBody">
+        <div class="msg-time">16:40</div>
+        <div class="msg-left">您好！我是 EcoPub 绿色守护者小绿，很高兴为您服务。请问有什么可以帮您？</div>
+    </div>
+    <div class="chat-footer">
+        <input type="text" id="chatInput" placeholder="请输入您的问题..." onkeypress="if(event.keyCode==13) sendMessage()">
+        <button onclick="sendMessage()">发送</button>
+    </div>
+    </div>
+
+<script>
+   function openChat() {
+    document.getElementById('chatModal').classList.add('active');
+    document.getElementById('chatOverlay').classList.add('active');
+}
+
+function closeChat() {
+    document.getElementById('chatModal').classList.remove('active');
+    document.getElementById('chatOverlay').classList.remove('active');
+}
+
+function sendMessage() {
+    var input = document.getElementById('chatInput');
+    var body = document.getElementById('chatBody');
+    var text = input.value.trim();
+
+    if (text === "") return;
+
+    // 1. 添加用户消息
+    var userMsg = '<div class="msg-right">' + text + '</div>';
+    body.innerHTML += userMsg;
+    input.value = "";
+
+    // 2. 模拟自动回复
+    setTimeout(function() {
+        var reply = "";
+        if(text.includes("积分")) {
+            reply = "积分可以在商城下单时抵扣，或者在个人中心兑换环保勋章哦！";
+        } else if(text.includes("发货")) {
+            reply = "由于环保包装工序较多，订单通常在24小时内发出。";
+        } else {
+            reply = "收到您的消息啦！小绿正在查询，请稍等片刻。";
+        }
+        body.innerHTML += '<div class="msg-left">' + reply + '</div>';
+        // 滚动到底部
+        body.scrollTop = body.scrollHeight;
+    }, 1000);
+
+    body.scrollTop = body.scrollHeight;
+}
+</script>
+
+</body>
+</html>

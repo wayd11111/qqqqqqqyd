@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>任务中心 - EcoGov 专业版</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<script>
+// 云函数 HTTP 触发地址（固定不变）
+const API_BASE = 'https://eco-project-d2grfzzu4ca135e6d-1423499375.ap-shanghai.app.tcloudbase.com';
+
+// 调用云函数
+async function callFunction(name, data) {
+    const response = await fetch(`${API_BASE}/${name}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data || {})
+    });
+    return response.json();
+}
+</script>
+
+    <style>
+        :root { --primary: #29a672; --bg: #f4f7f6; --text: #334155; }
+        body { font-family: 'Segoe UI', system-ui; background: var(--bg); margin: 0; display: flex; height: 100vh; }
+        
+        /* 侧边栏 */
+        .sidebar { width: 260px; background: white; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 30px 20px; font-weight: bold; color: var(--primary); font-size: 20px; }
+        .nav-item { padding: 12px 20px; cursor: pointer; color: #64748b; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
+        .nav-item:hover, .nav-item.active { background: #f0f7f4; color: var(--primary); }
+        
+        /* 主体区域 */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .content-header { padding: 40px 40px 20px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* 任务列表 */
+        .task-list { padding: 0 40px; overflow-y: auto; flex: 1; }
+        .task-card { 
+            background: white; padding: 15px 20px; border-radius: 10px; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            transition: 0.3s; cursor: pointer; border-left: 4px solid transparent;
+        }
+        .task-card:hover { transform: translateX(5px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .task-card.priority-high { border-left-color: #ef4444; }
+        .task-card.priority-normal { border-left-color: var(--primary); }
+        
+        /* 底部输入框 */
+        .input-area { padding: 20px 40px; background: white; border-top: 1px solid #e2e8f0; }
+        .input-wrapper { 
+            background: #f8fafc; padding: 10px 20px; border-radius: 8px; 
+            display: flex; align-items: center; gap: 10px; border: 1px solid #e2e8f0;
+        }
+        .input-wrapper input { flex: 1; border: none; background: transparent; outline: none; font-size: 14px; }
+        
+        /* 右侧详情抽屉 */
+        .detail-drawer { 
+            width: 0; background: white; border-left: 1px solid #e2e8f0; 
+            transition: 0.3s; overflow: hidden; display: flex; flex-direction: column;
+        }
+        .detail-drawer.open { width: 350px; padding: 30px 20px; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-header"><i class="fas fa-leaf"></i> EcoGov Todo</div>
+        <div class="nav-item active" onclick="changeTab('today')"><i class="fas fa-sun"></i> 我的一天</div>
+        <div class="nav-item" onclick="changeTab('future')"><i class="fas fa-calendar-alt"></i> 计划中</div>
+        <div class="nav-item" onclick="changeTab('done')"><i class="fas fa-check-double"></i> 已完成历史</div>
+        <div style="margin-top: auto; padding: 20px; border-top: 1px solid #eee;">
+            <a href="index.html" style="text-decoration:none; color:#94a3b8; font-size:14px;"><i class="fas fa-arrow-left"></i> 返回主页</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="content-header">
+            <h1 id="page-title">我的一天</h1>
+            <div id="current-date" style="color: #94a3b8;"></div>
+        </header>
+
+        <div id="list-container" class="task-list">
+            </div>
+
+        <div class="input-area">
+            <div class="input-wrapper">
+                <i class="fas fa-plus" style="color: var(--primary);"></i>
+                <input type="text" id="new-task-input" placeholder="添加任务，按回车保存...">
+                <input type="datetime-local" id="new-task-time" style="border:none; background:none; font-size:12px; color:#64748b;">
+            </div>
+        </div>
+    </main>
+
+    <div id="detail-drawer" class="detail-drawer">
+        <h3 id="det-title">任务详情</h3>
+        <textarea id="det-desc" placeholder="添加备注..." style="width:100%; height:150px; border:1px solid #eee; border-radius:8px; padding:10px; box-sizing:border-box;"></textarea>
+        <div style="margin-top:20px;">
+            <p style="font-size:12px; color:#94a3b8;">设置优先级：</p>
+            <select id="det-priority" style="width:100%; padding:8px;">
+                <option value="high">高</option>
+                <option value="normal">普通</option>
+                <option value="low">低</option>
+            </select>
+        </div>
+        <button onclick="saveDetail()" style="margin-top:auto; background:var(--primary); color:white; border:none; padding:12px; border-radius:8px; cursor:pointer;">保存修改</button>
+    </div>
+
+    <script>
+        let currentTab = 'today';
+        let todos = JSON.parse(localStorage.getItem('pro_todos')) || [];
+        let activeId = null;
+
+        // 初始化
+        function init() {
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString('zh-CN', {weekday: 'long', month: 'long', day: 'numeric'});
+            render();
+            
+            // 绑定回车事件
+            document.getElementById('new-task-input').onkeydown = (e) => {
+                if(e.key === 'Enter') addTask();
+            };
+        }
+
+        function render() {
+            const container = document.getElementById('list-container');
+            const filtered = todos.filter(t => t.status === currentTab);
+            
+            container.innerHTML = filtered.map(t => `
+                <div class="task-card priority-${t.priority || 'normal'}" onclick="showDetail(${t.id})">
+                    <i class="${t.status === 'done' ? 'fas fa-check-circle' : 'far fa-circle'}" 
+                       style="color: ${t.status === 'done' ? '#29a672' : '#cbd5e1'}; font-size:20px;"
+                       onclick="event.stopPropagation(); toggleStatus(${t.id})"></i>
+                    <div style="flex:1">
+                        <div style="font-size:15px; ${t.status === 'done' ? 'text-decoration:line-through; color:#94a3b8;' : ''}">${t.text}</div>
+                        <div style="font-size:11px; color:#94a3b8; margin-top:4px;"><i class="far fa-clock"></i> ${t.deadline ? t.deadline.replace('T', ' ') : '不限时'}</div>
+                    </div>
+                    <i class="far fa-trash-alt" style="color:#fee2e2;" onclick="event.stopPropagation(); deleteTodo(${t.id})"></i>
+                </div>
+            `).join('');
+            localStorage.setItem('pro_todos', JSON.stringify(todos));
+        }
+
+        function addTask() {
+            const input = document.getElementById('new-task-input');
+            const time = document.getElementById('new-task-time');
+            if(!input.value.trim()) return;
+
+            todos.unshift({
+                id: Date.now(),
+                text: input.value.trim(),
+                deadline: time.value,
+                status: currentTab === 'done' ? 'today' : currentTab,
+                priority: 'normal',
+                desc: ''
+            });
+            input.value = '';
+            render();
+        }
+
+        function showDetail(id) {
+            activeId = id;
+            const t = todos.find(x => x.id === id);
+            document.getElementById('det-title').innerText = t.text;
+            document.getElementById('det-desc').value = t.desc || '';
+            document.getElementById('det-priority').value = t.priority || 'normal';
+            document.getElementById('detail-drawer').classList.add('open');
+        }
+
+        function saveDetail() {
+            const t = todos.find(x => x.id === activeId);
+            t.desc = document.getElementById('det-desc').value;
+            t.priority = document.getElementById('det-priority').value;
+            document.getElementById('detail-drawer').classList.remove('open');
+            render();
+        }
+
+        function toggleStatus(id) {
+            const t = todos.find(x => x.id === id);
+            t.status = t.status === 'done' ? 'today' : 'done';
+            render();
+        }
+
+        function deleteTodo(id) {
+            if(confirm('确定删除吗？')) {
+                todos = todos.filter(x => x.id !== id);
+                render();
+            }
+        }
+
+        function changeTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            document.getElementById('page-title').innerText = tab === 'today' ? '我的一天' : tab === 'future' ? '计划中' : '已完成历史';
+            render();
+        }
+
+        init();
+    </script>
+</body>
+</html>

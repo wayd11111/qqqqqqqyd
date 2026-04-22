@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布商品 - 多规格管理 | 供应商工作台</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f4f7fc;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 30px 24px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 20px;
+            border: 1px solid #e9edf2;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.03);
+            padding: 28px 32px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e2a3e;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f2f5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .form-label .required {
+            color: #e74c3c;
+            margin-left: 4px;
+        }
+
+        .form-label .hint {
+            font-weight: normal;
+            font-size: 12px;
+            color: #999;
+            margin-left: 8px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d0d7de;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #29a672;
+            box-shadow: 0 0 0 3px rgba(41, 166, 114, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* 多规格区域样式 */
+        .spec-group-card {
+            background: #fafbfe;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e9edf2;
+            transition: all 0.2s;
+        }
+
+        .spec-header {
+            display: flex;
+ justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #dce5ef;
+        }
+
+        .spec-title {
+            font-weight: 700;
+            font-size: 16px;
+            color: #1e2a3e;
+            background: #eef2fa;
+            padding: 4px 14px;
+            border-radius: 30px;
+        }
+
+        .btn-remove-spec {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 6px 12px;
+            border-radius: 30px;
+            transition: 0.2s;
+        }
+
+        .btn-remove-spec:hover {
+            background: #fee9e8;
+        }
+
+        .spec-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1.2fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .spec-img-area {
+            grid-column: span 1;
+        }
+
+        .spec-small-upload {
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            background: #fff;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .spec-small-upload:hover {
+            border-color: #29a672;
+            background: #f6fef9;
+        }
+
+        .spec-img-preview {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 8px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spec-img-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .spec-img-preview i {
+            font-size: 28px;
+            color: #94a3b8;
+        }
+
+        .btn-add-spec {
+            background: none;
+            border: 1px dashed #29a672;
+            color: #29a672;
+            padding: 12px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            width: 100%;
+            transition: 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn-add-spec:hover {
+            background: #eef9f2;
+        }
+
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+
+        .btn-primary {
+            background: #29a672;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #1f8a5c;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: #666;
+            border: 1px solid #d0d7de;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        @media (max-width: 900px) {
+            .spec-detail-grid { grid-template-columns: 1fr; }
+            .two-columns { grid-template-columns: 1fr; }
+            .card { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div style="margin-bottom: 24px;">
+        <h2 style="color: #1e2a3e;"><i class="fas fa-palette" style="color: #29a672; margin-right: 10px;"></i> 发布多规格商品</h2>
+        <p style="color: #888; margin-top: 6px;">支持为不同规格（颜色/尺寸/版本）设置独立图片、价格、库存</p>
+    </div>
+
+    <div id="successMsg" class="success-message">
+        <i class="fas fa-check-circle"></i> 商品发布成功！
+    </div>
+
+    <form id="productForm">
+        <!-- 基础信息卡片 -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-info-circle"></i> 商品基础信息</div>
+            <div class="two-columns">
+                <div class="form-group">
+                    <label class="form-label">商品名称 <span class="required">*</span></label>
+                    <input type="text" id="productName" placeholder="例：轻量级羽绒服 / 智能手表">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">商品分类 <span class="required">*</span></label>
+                    <select id="category">
+                        <option value="">请选择</option>
+                        <option value="服装配饰">服装配饰</option>
+                        <option value="数码电子">数码电子</option>
+                        <option value="实验耗材">实验耗材</option>
+                        <option value="家居生活">家居生活</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">商品描述</label>
+                <textarea id="description" placeholder="详细描述商品特点..."></textarea>
+            </div>
+            <!-- 商品多图上传（商品主图/详情图） -->
+<div class="form-group">
+    <label class="form-label">
+        商品图片 <span class="required">*</span>
+        <span class="hint">可上传多张，建议首张作为主图</span>
+    </label>
+    <div id="productImagesArea" style="border: 2px dashed #d0d7de; border-radius: 16px; padding: 24px; text-align: center; background: #fafbfc; cursor: pointer; transition: all 0.2s;">
+        <i class="fas fa-cloud-upload-alt" style="font-size: 42px; color: #29a672; margin-bottom: 10px;"></i>
+        <p style="color: #666; font-size: 14px;">点击或拖拽上传图片</p>
+        <p style="font-size: 12px; color: #999;">支持 jpg、png 格式，单张不超过5MB，最多10张</p>
+    </div>
+    <input type="file" id="productImagesInput" accept="image/jpeg,image/png" multiple style="display: none;">
+    <div id="productImagesPreview" style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px;"></div>
+</div>
+        </div>
+
+        <!-- 多规格管理卡片（核心功能） -->
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-layer-group"></i> 规格管理（颜色/尺寸/版本）
+                <span style="font-size: 12px; font-weight: normal;">每个规格可单独设置图片、价格、库存</span>
+            </div>
+            <div id="specificationsContainer">
+                <!-- 动态规格组会动态添加到这里 -->
+            </div>
+            <button type="button" class="btn-add-spec" id="addSpecBtn">
+                <i class="fas fa-plus-circle"></i> 添加新规格（例如：红色、绿色、大码等）
+            </button>
+            <div style="margin-top: 14px; background: #f8fafc; padding: 10px 14px; border-radius: 12px; font-size: 12px; color: #5584b0;">
+                <i class="fas fa-lightbulb"></i> 提示：每个规格可上传专属图片。若不添加规格，商品将按普通商品发布（默认规格）。
+            </div>
+        </div>
+
+        <!-- 公共运费及售后 -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-truck"></i> 物流与售后</div>
+            <div class="two-columns">
+                <div class="form-group">
+                    <label class="form-label">运费模板</label>
+                    <select id="shipping">
+                        <option value="包邮">包邮</option>
+                        <option value="按件收费">按件收费</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">发货地</label>
+                    <input type="text" id="shipFrom" placeholder="上海市浦东新区">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">售后政策</label>
+                <textarea id="service" rows="2" placeholder="7天无理由，质保一年"></textarea>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button type="button" class="btn-secondary" onclick="window.location.reload()">重置全部</button>
+            <button type="button" class="btn-primary" id="submitBtn"><i class="fas fa-cloud-upload-alt"></i> 发布商品</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // 多规格核心逻辑
+    let specIdCounter = 0;
+
+    // 获取容器
+    const container = document.getElementById('specificationsContainer');
+
+    // 辅助函数：生成唯一ID
+    function generateSpecId() {
+        return `spec_${Date.now()}_${++specIdCounter}`;
+    }
+
+    // 创建一个空规格组 (默认示例数据可展示一个红色样例，但初始为空，点击添加才出现)
+    function createSpecGroup(specData = null) {
+        const specId = generateSpecId();
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'spec-group-card';
+        groupDiv.setAttribute('data-spec-id', specId);
+
+        // 默认值: 如果specData存在则填充，否则新建空白规格（规格名称可为空，让用户填）
+        const specNameValue = specData ? specData.name : '';
+        const priceValue = specData ? (specData.price !== undefined ? specData.price : '') : '';
+        const stockValue = specData ? (specData.stock !== undefined ? specData.stock : '') : '';
+        const skuValue = specData ? (specData.sku || '') : '';
+        const imgSrc = specData && specData.image ? specData.image : '';
+
+        groupDiv.innerHTML = `
+            <div class="spec-header">
+                <span class="spec-title"><i class="fas fa-tag"></i> 规格详情</span>
+                <button type="button" class="btn-remove-spec" onclick="removeSpecGroup('${specId}')"><i class="fas fa-trash-alt"></i> 删除规格</button>
+            </div>
+            <div class="spec-detail-grid">
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label">规格名称 <span class="required">*</span></label>
+                    <input type="text" class="spec-name-input" placeholder="例: 红色 / 256GB / XL" value="${escapeHtml(specNameValue)}">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label">售价 (¥) <span class="required">*</span></label>
+                    <input type="number" step="0.01" class="spec-price-input" placeholder="0.00" value="${priceValue}">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label">库存数量</label>
+                    <input type="number" class="spec-stock-input" placeholder="0" value="${stockValue}">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label">商家SKU(选填)</label>
+                    <input type="text" class="spec-sku-input" placeholder="自定义编码" value="${escapeHtml(skuValue)}">
+                </div>
+            </div>
+            <div class="spec-img-area">
+                <label class="form-label">规格专属图片 <span class="hint">(建议正方形，用于规格切换展示)</span></label>
+                <div class="spec-small-upload" data-spec-id="${specId}">
+                    <div class="spec-img-preview" id="preview_${specId}">
+                        ${imgSrc ? `<img src="${imgSrc}" alt="规格图">` : '<i class="fas fa-image"></i>'}
+                    </div>
+                    <div style="font-size: 12px; color: #29a672;">点击上传图片</div>
+                    <input type="file" accept="image/jpeg,image/png" class="spec-img-file" style="display: none;" data-spec-id="${specId}">
+                </div>
+                <div style="font-size: 11px; color: #aaa; margin-top: 6px;">支持jpg/png，不超过2MB</div>
+            </div>
+        `;
+
+        // 绑定图片上传逻辑
+        const uploadDiv = groupDiv.querySelector('.spec-small-upload');
+        const fileInput = groupDiv.querySelector('.spec-img-file');
+        const previewDiv = groupDiv.querySelector(`#preview_${specId}`);
+
+        uploadDiv.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('图片大小不能超过2MB');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    previewDiv.innerHTML = `<img src="${ev.target.result}" alt="规格图">`;
+                    // 存储图片数据到自定义属性，便于提交时获取
+                    groupDiv.setAttribute('data-spec-img', ev.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+            fileInput.value = '';
+        });
+
+        // 如果已有图片数据（编辑场景），设置data-spec-img
+        if (imgSrc) {
+            groupDiv.setAttribute('data-spec-img', imgSrc);
+        } else {
+            groupDiv.setAttribute('data-spec-img', '');
+        }
+
+        return groupDiv;
+    }
+
+    function escapeHtml(str) {
+        if(!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // 删除规格组
+    window.removeSpecGroup = function(specId) {
+        const group = document.querySelector(`.spec-group-card[data-spec-id="${specId}"]`);
+        if(group) group.remove();
+    };
+
+    // 添加新规格
+    function addNewSpec() {
+        const newGroup = createSpecGroup(null);
+        container.appendChild(newGroup);
+    }
+
+    // 收集所有规格数据
+    function collectSpecsData() {
+        const specs = [];
+        const groups = document.querySelectorAll('.spec-group-card');
+        for(let group of groups) {
+            const specId = group.getAttribute('data-spec-id');
+            const nameInput = group.querySelector('.spec-name-input');
+            const priceInput = group.querySelector('.spec-price-input');
+            const stockInput = group.querySelector('.spec-stock-input');
+            const skuInput = group.querySelector('.spec-sku-input');
+            const specName = nameInput ? nameInput.value.trim() : '';
+            if(!specName) {
+                alert('请填写完整规格名称（如红色/绿色/大码）后再发布');
+                throw new Error('规格名称不能为空');
+            }
+            const price = priceInput ? parseFloat(priceInput.value) : 0;
+            if(isNaN(price) || price < 0) {
+                alert(`规格“${specName}”价格无效`);
+                throw new Error('价格错误');
+            }
+            const stock = stockInput ? parseInt(stockInput.value) : 0;
+            const sku = skuInput ? skuInput.value.trim() : '';
+            let imageData = group.getAttribute('data-spec-img') || '';
+            // 如果没有上传图片，给一个默认占位
+            if(!imageData) imageData = '';
+            specs.push({
+                specId: specId,
+                name: specName,
+                price: price,
+                stock: isNaN(stock) ? 0 : stock,
+                sku: sku,
+                image: imageData   // base64或空
+            });
+        }
+        return specs;
+    }
+
+    // ========== 发布商品：验证并跳转预览页 ==========
+const submitBtn = document.getElementById('submitBtn');
+const productNameInp = document.getElementById('productName');
+const categorySelect = document.getElementById('category');
+const descriptionText = document.getElementById('description');
+
+submitBtn.addEventListener('click', async () => {
+    // 1. 基础信息验证
+    const productName = productNameInp.value.trim();
+    if (!productName) {
+        alert('请填写商品名称');
+        productNameInp.focus();
+        return;
+    }
+    
+    const category = categorySelect.value;
+    if (!category) {
+        alert('请选择商品分类');
+        categorySelect.focus();
+        return;
+    }
+    
+    const description = descriptionText.value.trim();
+    if (!description) {
+        alert('请填写商品描述');
+        descriptionText.focus();
+        return;
+    }
+    
+    // 2. 商品主图验证（至少上传一张）
+    if (!uploadedProductImages || uploadedProductImages.length === 0) {
+        alert('请至少上传一张商品图片');
+        return;
+    }
+    
+    // 3. 收集规格数据并验证
+    let specs = [];
+    const specGroups = document.querySelectorAll('.spec-group-card');
+    
+    if (specGroups.length === 0) {
+        alert('请至少添加一个商品规格（如：红色、绿色、大码等）');
+        return;
+    }
+    
+    let hasError = false;
+    for (let group of specGroups) {
+        const nameInput = group.querySelector('.spec-name-input');
+        const priceInput = group.querySelector('.spec-price-input');
+        const specName = nameInput ? nameInput.value.trim() : '';
+        
+        if (!specName) {
+            alert('请填写完整规格名称（如红色/绿色）');
+            hasError = true;
+            nameInput?.focus();
+            break;
+        }
+        
+        const price = priceInput ? parseFloat(priceInput.value) : 0;
+        if (isNaN(price) || price <= 0) {
+            alert(`规格“${specName}”的售价不能为空且必须大于0`);
+            hasError = true;
+            priceInput?.focus();
+            break;
+        }
+        
+        const stockInput = group.querySelector('.spec-stock-input');
+        const stock = stockInput ? parseInt(stockInput.value) : 0;
+        if (isNaN(stock) || stock < 0) {
+            alert(`规格“${specName}”的库存无效`);
+            hasError = true;
+            break;
+        }
+        
+        // 获取规格图片
+        let specImage = group.getAttribute('data-spec-img') || '';
+        
+        specs.push({
+            name: specName,
+            price: price,
+            stock: stock,
+            sku: group.querySelector('.spec-sku-input')?.value.trim() || '',
+            image: specImage
+        });
+    }
+    
+    if (hasError) return;
+    
+    // 4. 收集运费和售后信息
+    const shipping = document.getElementById('shipping')?.value || '包邮';
+    const shipFrom = document.getElementById('shipFrom')?.value || '';
+    const service = document.getElementById('service')?.value || '';
+    const brand = document.getElementById('brand')?.value || '';
+    const unit = document.getElementById('unit')?.value || '';
+    
+    // 5. 构建完整的商品数据对象
+    const productData = {
+        productName: productName,
+        category: category,
+        description: description,
+        brand: brand,
+        unit: unit,
+        shipping: shipping,
+        shipFrom: shipFrom,
+        service: service,
+        // 商品主图（多张）
+        productImages: uploadedProductImages.map(img => img.src),
+        // 规格列表
+        specifications: specs,
+        publishTime: new Date().toISOString()
+    };
+    
+    console.log('准备预览的商品数据:', productData);
+    
+    // 6. 将数据存入 sessionStorage，供预览页读取
+    sessionStorage.setItem('product_draft_preview', JSON.stringify(productData));
+    
+    // 7. 跳转到预览页
+    window.location.href = 'qyd-publish_product_next.html';
+});
+
+    // 绑定添加规格按钮
+    document.getElementById('addSpecBtn').addEventListener('click', addNewSpec);
+
+    // 为了体验，默认添加两个示例规格：红色、绿色 (让用户直观看到多规格图片不同的设计)
+    window.addEventListener('DOMContentLoaded', () => {
+        // 提供演示示例: 红色 和 绿色 (让客户立刻理解可以每个规格独立图片)
+        const demoRed = {
+            name: '红色',
+            price: 299,
+            stock: 35,
+            sku: 'RED-001',
+            image: ''   // 留空用户可以自己传
+        };
+        const demoGreen = {
+            name: '绿色',
+            price: 299,
+            stock: 28,
+            sku: 'GRN-002',
+            image: ''
+        };
+        const redGroup = createSpecGroup(demoRed);
+        const greenGroup = createSpecGroup(demoGreen);
+        container.appendChild(redGroup);
+        container.appendChild(greenGroup);
+    });
+    // ========== 商品多图上传逻辑 ==========
+const productImagesArea = document.getElementById('productImagesArea');
+const productImagesInput = document.getElementById('productImagesInput');
+const productImagesPreview = document.getElementById('productImagesPreview');
+let uploadedProductImages = []; // 存储已上传的图片 base64
+
+// 点击触发上传
+if (productImagesArea) {
+    productImagesArea.addEventListener('click', () => productImagesInput.click());
+}
+
+// 处理拖拽上传
+productImagesArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    productImagesArea.style.borderColor = '#29a672';
+    productImagesArea.style.background = '#f6fef9';
+});
+productImagesArea.addEventListener('dragleave', () => {
+    productImagesArea.style.borderColor = '#d0d7de';
+    productImagesArea.style.background = '#fafbfc';
+});
+productImagesArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    productImagesArea.style.borderColor = '#d0d7de';
+    productImagesArea.style.background = '#fafbfc';
+    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+    handleProductImages(files);
+});
+
+// 文件选择变化
+productImagesInput.addEventListener('change', (e) => {
+    const files = Array.from(e.target.files);
+    handleProductImages(files);
+    productImagesInput.value = ''; // 清空以便重复选择
+});
+
+// 处理图片上传
+function handleProductImages(files) {
+    const maxImages = 10;
+    for (let file of files) {
+        if (uploadedProductImages.length >= maxImages) {
+            alert(`最多只能上传 ${maxImages} 张图片`);
+            break;
+        }
+        if (!file.type.startsWith('image/')) continue;
+        if (file.size > 5 * 1024 * 1024) {
+            alert(`图片 ${file.name} 超过5MB，请压缩后上传`);
+            continue;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            uploadedProductImages.push({ name: file.name, src: e.target.result });
+            renderProductImagesPreview();
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// 渲染图片预览
+function renderProductImagesPreview() {
+    productImagesPreview.innerHTML = '';
+    uploadedProductImages.forEach((img, index) => {
+        const div = document.createElement('div');
+        div.style.position = 'relative';
+        div.style.width = '100px';
+        div.style.height = '100px';
+        div.style.borderRadius = '12px';
+        div.style.overflow = 'hidden';
+        div.style.border = '1px solid #e1e4e8';
+        div.style.background = '#f9f9f9';
+        div.innerHTML = `
+            <img src="${img.src}" style="width:100%; height:100%; object-fit:cover;">
+            <button type="button" class="remove-product-img" data-index="${index}" style="position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.6); color:white; border:none; border-radius:50%; width:22px; height:22px; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;"><i class="fas fa-times"></i></button>
+        `;
+        productImagesPreview.appendChild(div);
+    });
+    // 绑定删除事件
+    document.querySelectorAll('.remove-product-img').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const idx = parseInt(btn.getAttribute('data-index'));
+            uploadedProductImages.splice(idx, 1);
+            renderProductImagesPreview();
+        });
+    });
+}
+
+// 可选：在提交时将 uploadedProductImages 一起提交到 productData 中
+// 修改提交按钮的逻辑，在构建 productData 时添加：
+// productData.productImages = uploadedProductImages.map(img => img.src);
+</script>
+<script>
+// 云函数 HTTP 触发地址（固定不变）
+const API_BASE = 'https://eco-project-d2grfzzu4ca135e6d-1423499375.ap-shanghai.app.tcloudbase.com';
+
+// 调用云函数
+async function callFunction(name, data) {
+    const response = await fetch(`${API_BASE}/${name}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data || {})
+    });
+    return response.json();
+}
+</script>
+</body>
+</html>

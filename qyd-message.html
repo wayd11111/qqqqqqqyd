@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>协同办公中心 - EcoGov</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<script>
+// 云函数 HTTP 触发地址（固定不变）
+const API_BASE = 'https://eco-project-d2grfzzu4ca135e6d-1423499375.ap-shanghai.app.tcloudbase.com';
+
+// 调用云函数
+async function callFunction(name, data) {
+    const response = await fetch(`${API_BASE}/${name}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data || {})
+    });
+    return response.json();
+}
+</script>
+    <style>
+        :root { --primary-green: #2a8c2a; --bg-color: #f4f7f4; --border-color: #eeeeee; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Helvetica Neue', Helvetica, sans-serif; background: var(--bg-color); height: 100vh; display: flex; align-items: center; justify-content: center; }
+        
+        .message-container { width: 1240px; height: 90vh; background: #fff; display: flex; border-radius: 12px; overflow: hidden; box-shadow: 0 15px 50px rgba(0,0,0,0.1); }
+        
+        /* 侧边栏 */
+        .msg-sidebar { width: 280px; border-right: 1px solid var(--border-color); background: #fcfcfc; }
+        .sidebar-header { padding: 25px 20px; font-weight: bold; font-size: 18px; border-bottom: 1px solid var(--border-color); }
+        .chat-item { display: flex; padding: 15px; cursor: pointer; border-bottom: 1px solid #f5f5f5; transition: 0.2s; }
+        .chat-item.active { background: #eef7ee; border-right: 4px solid var(--primary-green); }
+        .avatar { width: 45px; height: 45px; border-radius: 8px; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: #eee; }
+
+        /* 主区域 */
+        .msg-main { flex: 1; display: flex; flex-direction: column; position: relative; }
+        .msg-header { height: 65px; padding: 0 25px; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); font-weight: bold; background: #fff; }
+        .chat-window { flex: 1; overflow-y: auto; padding: 25px; background: #f9fbf9; }
+        
+        /* 消息气泡 */
+        .bubble-wrapper { display: flex; margin-bottom: 20px; }
+        .bubble-wrapper.me { flex-direction: row-reverse; }
+        .bubble { max-width: 70%; padding: 12px 16px; font-size: 14px; border-radius: 8px; line-height: 1.6; }
+        .bubble.other { background: #fff; border: 1px solid #e8e8e8; margin-left: 10px; color: #333; }
+        .bubble.me { background: var(--primary-green); color: #fff; margin-right: 10px; }
+        
+        /* 图片与文件特殊气泡：去掉背景和绿框 */
+        .bubble.no-style { background: transparent !important; border: none !important; padding: 0 !important; color: inherit !important; }
+        .bubble img { max-width: 280px; border-radius: 8px; cursor: pointer; display: block; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+
+        /* 文件卡片样式 */
+        .file-msg-card { background: #fff; border: 1px solid #eee; padding: 12px; border-radius: 10px; display: flex; align-items: center; min-width: 220px; color: #333; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .file-msg-card:hover { border-color: var(--primary-green); }
+
+        /* 系统通知卡片 */
+        .notice-card { background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 20px; margin-bottom: 15px; }
+
+        /* 输入区控制 */
+        .input-container { border-top: 1px solid var(--border-color); background: #fff; position: relative; }
+        .chat-toolbar { height: 45px; padding: 0 20px; display: flex; align-items: center; gap: 20px; }
+        .tool-icon { cursor: pointer; font-size: 20px; color: #666; }
+        .tool-icon:hover { color: var(--primary-green); }
+        
+        /* 表情包选择器 */
+        .emoji-picker { position: absolute; bottom: 160px; left: 20px; background: #fff; border: 1px solid #ddd; box-shadow: 0 5px 25px rgba(0,0,0,0.15); padding: 12px; display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; border-radius: 12px; z-index: 100; }
+        .emoji-item { font-size: 22px; cursor: pointer; transition: 0.2s; text-align: center; }
+        .emoji-item:hover { transform: scale(1.3); }
+
+        .input-area { padding: 0 20px 15px; }
+        .input-area textarea { width: 100%; height: 80px; border: none; outline: none; resize: none; font-size: 14px; }
+        
+        /* 右侧栏 */
+        .msg-detail-panel { width: 300px; border-left: 1px solid var(--border-color); padding: 25px 20px; background: #fff; }
+        .section-title { font-size: 13px; color: #999; margin-bottom: 15px; font-weight: bold; border-left: 3px solid var(--primary-green); padding-left: 10px; }
+        .quick-btn { width: 100%; padding: 10px; background: #f9f9f9; border: 1px solid #eee; border-radius: 8px; font-size: 12px; margin-bottom: 10px; cursor: pointer; text-align: left; }
+        .quick-btn:hover { color: var(--primary-green); border-color: var(--primary-green); background: #fafffa; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="message-container">
+    <aside class="msg-sidebar">
+        <div class="sidebar-header">办公协作中心</div>
+        <div id="chat-list"></div>
+    </aside>
+
+    <main class="msg-main">
+        <div class="msg-header" id="active-title">正在加载...</div>
+        <div class="chat-window" id="chat-window"></div>
+
+        <div class="input-container" id="chat-footer">
+            <div id="emoji-picker" class="emoji-picker hidden"></div>
+            
+            <div class="chat-toolbar">
+                <span class="tool-icon" onclick="toggleEmoji()">😊</span>
+                <span class="tool-icon" onclick="triggerUpload('image')">🖼️</span>
+                <span class="tool-icon" onclick="triggerUpload('file')">📁</span>
+                <input type="file" id="media-upload" class="hidden" onchange="handleFileSelect(this)">
+            </div>
+            <div class="input-area">
+                <textarea id="msg-input" placeholder="请输入协作信息..."></textarea>
+                <div style="text-align: right;"><button onclick="sendMsg()" style="padding:8px 25px; background:var(--primary-green); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">发送</button></div>
+            </div>
+        </div>
+    </main>
+
+    <aside class="msg-detail-panel" id="chat-right">
+        <div class="section-title">快捷回复</div>
+        <div id="quick-actions">
+            <button class="quick-btn" onclick="useQuick('收到，已提交相关部门核对。')">收到，已提交相关部门核对。</button>
+            <button class="quick-btn" onclick="useQuick('请提供最新的企业资质扫描件。')">请提供最新的企业资质扫描件。</button>
+            <button class="quick-btn" onclick="useQuick('合作协议已确认，准予执行。')">合作协议已确认，准予执行。</button>
+        </div>
+
+        <div class="section-title" style="margin-top: 40px;">公共文件柜 (点击发送)</div>
+        <button class="quick-btn" onclick="sendShared('2026采购标准汇编.pdf', '📄')">📄 2026采购标准汇编.pdf</button>
+        <button class="quick-btn" onclick="sendShared('EcoGov品牌指南.zip', '📦')">📦 EcoGov品牌指南.zip</button>
+    </aside>
+</div>
+
+<script>
+    const emojis = ['😊','😂','👍','🤝','✅','📍','📁','📄','💼','🏢','🌟','🎉','🔥','💬','🏢','📞'];
+    const state = {
+        activeId: 'group',
+        chats: {
+            'system': {
+                name: '系统通知', icon: '📢', isNotice: true,
+                messages: [
+                    { title: '✅ 审核通过', content: '您的 AAA 级商业背书资质已生效，有效期至 2027 年 3 月。', time: '10:00' },
+                    { title: '📩 新商机提醒', content: '环保局发布了新的太阳能设备招标，请前往工作台查看。', time: '昨天' }
+                ]
+            },
+            'group': {
+                name: '环保招标协作组', icon: '👥', isNotice: false,
+                messages: [
+                    { role: 'other', type: 'text', content: '王工，请上传一下最新的检测报告。' },
+                    { role: 'me', type: 'text', content: '收到，正在扫描上传，请稍候。' }
+                ]
+            }
+        }
+    };
+
+    // 表情初始化
+    const picker = document.getElementById('emoji-picker');
+    emojis.forEach(e => {
+        const span = document.createElement('span');
+        span.className = 'emoji-item';
+        span.innerText = e;
+        span.onclick = () => { useQuick(e); toggleEmoji(); };
+        picker.appendChild(span);
+    });
+
+    function switchChat(id) {
+        state.activeId = id;
+        const isNotice = state.chats[id].isNotice;
+        document.getElementById('chat-footer').classList.toggle('hidden', isNotice);
+        document.getElementById('chat-right').classList.toggle('hidden', isNotice);
+        render();
+    }
+
+    function render() {
+        // 渲染列表
+        document.getElementById('chat-list').innerHTML = Object.keys(state.chats).map(id => `
+            <div class="chat-item ${state.activeId === id ? 'active' : ''}" onclick="switchChat('${id}')">
+                <div class="avatar">${state.chats[id].icon}</div>
+                <div style="flex:1">
+                    <div style="font-weight:bold; font-size:14px;">${state.chats[id].name}</div>
+                    <div style="font-size:11px; color:#999; margin-top:4px;">查看最新消息</div>
+                </div>
+            </div>
+        `).join('');
+
+        // 渲染内容
+        const chat = state.chats[state.activeId];
+        document.getElementById('active-title').innerText = chat.name;
+        const win = document.getElementById('chat-window');
+        let html = '';
+
+        if (chat.isNotice) {
+            chat.messages.forEach(m => {
+                html += `<div class="notice-card">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px">
+                        <span style="font-weight:bold; color:var(--primary-green)">${m.title}</span>
+                        <span style="font-size:12px; color:#ccc">${m.time}</span>
+                    </div>
+                    <div style="font-size:14px; color:#666; line-height:1.5;">${m.content}</div>
+                </div>`;
+            });
+        } else {
+            chat.messages.forEach(m => {
+                let content = '';
+                let bubbleClass = '';
+
+                if (m.type === 'text') {
+                    content = m.content;
+                } else if (m.type === 'img') {
+                    bubbleClass = 'no-style';
+                    content = `<img src="${m.src}" onclick="window.open(this.src)">`;
+                } else if (m.type === 'file') {
+                    bubbleClass = 'no-style';
+                    content = `<div class="file-msg-card" onclick="alert('准备预览：${m.name}')">
+                        <span style="font-size:24px; margin-right:12px;">${m.icon}</span>
+                        <div style="overflow:hidden;">
+                            <div style="font-weight:bold; font-size:13px; white-space:nowrap; text-overflow:ellipsis;">${m.name}</div>
+                            <div style="font-size:11px; color:#999;">点击预览文件内容</div>
+                        </div>
+                    </div>`;
+                }
+                
+                html += `<div class="bubble-wrapper ${m.role}">
+                    <div class="bubble ${m.role} ${bubbleClass}">${content}</div>
+                </div>`;
+            });
+        }
+        win.innerHTML = html;
+        win.scrollTop = win.scrollHeight;
+    }
+
+    function sendMsg() {
+        const input = document.getElementById('msg-input');
+        if (!input.value.trim()) return;
+        state.chats['group'].messages.push({ role: 'me', type: 'text', content: input.value });
+        input.value = '';
+        render();
+    }
+
+    function useQuick(text) {
+        document.getElementById('msg-input').value += text;
+        document.getElementById('msg-input').focus();
+    }
+
+    function toggleEmoji() { document.getElementById('emoji-picker').classList.toggle('hidden'); }
+
+    function triggerUpload() { document.getElementById('media-upload').click(); }
+
+    function handleFileSelect(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const isImg = file.type.startsWith('image/');
+        state.chats['group'].messages.push(isImg 
+            ? { role: 'me', type: 'img', src: URL.createObjectURL(file) }
+            : { role: 'me', type: 'file', name: file.name, icon: '📄' }
+        );
+        render();
+    }
+
+    function sendShared(name, icon) {
+        state.chats['group'].messages.push({ role: 'me', type: 'file', name: name, icon: icon });
+        render();
+    }
+
+    window.onload = () => switchChat('group');
+</script>
+</body>
+</html>
